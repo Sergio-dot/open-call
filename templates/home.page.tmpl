@@ -1,5 +1,17 @@
 {{template "base" .}}
 
+{{define "css"}}
+<style>
+    body {
+        background: url("/static/images/animated_shape.svg") no-repeat center center fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+    }
+</style>
+{{end}}
+
 {{define "content"}}
     <div class="container">
         <div class="row">
