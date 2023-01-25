@@ -19,7 +19,7 @@ func routes(app *config.AppConfig) http.Handler {
 
 	// routes
 	mux.Get("/", handlers.Repo.Home)
-	mux.Get("/about", handlers.Repo.About)
+	mux.Get("/room", handlers.Repo.Room)
 
 	// enable static files
 	fileServer := http.FileServer(http.Dir("./static/"))

@@ -1,0 +1,48 @@
+{{template "base" .}}
+
+{{define "content"}}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col mt-2 mb-2">
+                            <i class="fa fa-users"><span id="viewer-count" class="badge text-bg-secondary ms-2"> 1</span></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container-fluid">
+                    <div id="videos" class="row">
+                        <div class="col">
+                            <video id="localVideo" class="video-area mirror" autoplay muted></video>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container">
+                    <div id="no-con" class="alert alert-danger w-50 mt-2 mx-auto" role="alert" style="display: none">
+                        Connection timed out... refresh your page.
+                    </div>
+                    <div id="no-perm" class="alert alert-danger w-50 mt-2 mx-auto" role="alert">
+                        To join the room, camera and microphone permissions are needed. <br>
+                        Or you can join the <a href="{{.StreamLink}}">stream</a> as viewer.
+                    </div>
+                    <div id="no-one">
+                        <div id="no-streamer" class="alert alert-info alert-dismissible fade show w-50 mt-2 mx-auto" role="alert">
+                            Room is empty. <br>
+                            Share your room link to invite your friends.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <div id="no-viewer" class="alert alert-info alert-dismissible fade show w-50 mt-2 mx-auto" role="alert">
+                            Share your stream link with your viewers.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{{end}}
