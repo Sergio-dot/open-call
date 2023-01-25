@@ -1,2 +1,9 @@
-# hidden directories
+# directories
 .idea
+tmp
+
+# Go Air config file
+.air.toml
+
+# database config
+/database.yml
