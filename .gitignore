@@ -1,6 +1,10 @@
 # directories
 .idea
+
+# tmp
 tmp
+*.tmp
+main.exe
 
 # Go Air config file
 .air.toml
