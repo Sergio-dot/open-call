@@ -3,8 +3,8 @@ package render
 import (
 	"bytes"
 	"fmt"
-	"github.com/Sergio-dot/open-call/pkg/config"
-	"github.com/Sergio-dot/open-call/pkg/models"
+	"github.com/Sergio-dot/open-call/internal/config"
+	"github.com/Sergio-dot/open-call/internal/models"
 	"html/template"
 	"log"
 	"net/http"

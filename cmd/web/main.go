@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/Sergio-dot/open-call/pkg/config"
-	"github.com/Sergio-dot/open-call/pkg/handlers"
-	"github.com/Sergio-dot/open-call/pkg/render"
+	"github.com/Sergio-dot/open-call/internal/config"
+	"github.com/Sergio-dot/open-call/internal/handlers"
+	"github.com/Sergio-dot/open-call/internal/render"
 	"github.com/alexedwards/scs/v2"
 	"log"
 	"net/http"

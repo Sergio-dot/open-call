@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/Sergio-dot/open-call/pkg/config"
-	"github.com/Sergio-dot/open-call/pkg/handlers"
+	"github.com/Sergio-dot/open-call/internal/config"
+	"github.com/Sergio-dot/open-call/internal/handlers"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"net/http"

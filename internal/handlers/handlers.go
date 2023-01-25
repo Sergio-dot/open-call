@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"github.com/Sergio-dot/open-call/pkg/config"
-	"github.com/Sergio-dot/open-call/pkg/models"
-	"github.com/Sergio-dot/open-call/pkg/render"
+	"github.com/Sergio-dot/open-call/internal/config"
+	"github.com/Sergio-dot/open-call/internal/models"
+	"github.com/Sergio-dot/open-call/internal/render"
 	"net/http"
 )
 
