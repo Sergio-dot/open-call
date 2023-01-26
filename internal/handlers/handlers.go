@@ -2,8 +2,11 @@ package handlers
 
 import (
 	"github.com/Sergio-dot/open-call/internal/config"
+	"github.com/Sergio-dot/open-call/internal/driver"
 	"github.com/Sergio-dot/open-call/internal/models"
 	"github.com/Sergio-dot/open-call/internal/render"
+	"github.com/Sergio-dot/open-call/internal/repository"
+	"github.com/Sergio-dot/open-call/internal/repository/dbrepo"
 	"net/http"
 )
 
@@ -13,12 +16,14 @@ var Repo *Repository
 // Repository is the repository type
 type Repository struct {
 	App *config.AppConfig
+	DB  repository.DatabaseRepo
 }
 
-// NewRepo creates a new repository
-func NewRepo(a *config.AppConfig) *Repository {
+// NewRepo creates a new repository with access to AppConfig
+func NewRepo(a *config.AppConfig, db *driver.DB) *Repository {
 	return &Repository{
 		App: a,
+		DB:  dbrepo.NewPostgresRepo(db.SQL, a),
 	}
 }
 
@@ -29,10 +34,21 @@ func NewHandlers(r *Repository) {
 
 // Home is the home page handler
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
-	render.Template(w, "home.page.tmpl", &models.TemplateData{})
+	err := render.Template(w, r, "home.page.tmpl", &models.TemplateData{})
+	if err != nil {
+		return
+	}
 }
 
-// About is the about page handler
+// SignIn is the handler to log the user in
+func (m *Repository) SignIn(w http.ResponseWriter, r *http.Request) {
+	// TODO: user login
+}
+
+// Room is the room page handler
 func (m *Repository) Room(w http.ResponseWriter, r *http.Request) {
-	render.Template(w, "room.page.tmpl", &models.TemplateData{})
+	err := render.Template(w, r, "room.page.tmpl", &models.TemplateData{})
+	if err != nil {
+		return
+	}
 }
