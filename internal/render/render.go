@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/Sergio-dot/open-call/internal/config"
 	"github.com/Sergio-dot/open-call/internal/models"
+	"github.com/justinas/nosurf"
 	"html/template"
 	"log"
 	"net/http"
@@ -15,18 +16,23 @@ var functions = template.FuncMap{}
 
 var app *config.AppConfig
 
-// NewTemplates sets the config for the template package
-func NewTemplates(a *config.AppConfig) {
+// NewRenderer sets the config for the template package
+func NewRenderer(a *config.AppConfig) {
 	app = a
 }
 
-func AddDefaultData(td *models.TemplateData) *models.TemplateData {
+// AddDefaultData adds data for all templates
+func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateData {
+	td.Flash = app.Session.PopString(r.Context(), "flash")
+	td.Error = app.Session.PopString(r.Context(), "error")
+	td.Warning = app.Session.PopString(r.Context(), "warning")
+	td.CSRFToken = nosurf.Token(r)
 
 	return td
 }
 
 // Template renders templates using html/template
-func Template(w http.ResponseWriter, tmpl string, td *models.TemplateData) {
+func Template(w http.ResponseWriter, r *http.Request, tmpl string, td *models.TemplateData) error {
 	var tc map[string]*template.Template
 
 	if app.UseCache {
@@ -46,7 +52,7 @@ func Template(w http.ResponseWriter, tmpl string, td *models.TemplateData) {
 	buff := new(bytes.Buffer)
 
 	// add default data to template
-	td = AddDefaultData(td)
+	td = AddDefaultData(td, r)
 
 	// execute the template and store the value in the buffer
 	_ = t.Execute(buff, td)
@@ -56,6 +62,8 @@ func Template(w http.ResponseWriter, tmpl string, td *models.TemplateData) {
 	if err != nil {
 		fmt.Println("error writing template to browser:", err)
 	}
+
+	return nil
 }
 
 // CreateTemplateCache parses all templates, including layouts, and store them
