@@ -67,7 +67,8 @@
 
             <!-- Sign in form -->
             <div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="tab-login">
-                <form action="#" class="needs-validation" novalidate>
+                <form action="/signin" method="post" class="needs-validation" novalidate>
+                    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
                     <div class="text-center mb-3">
                         <p>Sign in with:</p>
                         <button type="button" class="btn btn-link btn-floating mx-1">
@@ -91,13 +92,13 @@
 
                     <!-- Email input -->
                     <div class="form-outline mb-4">
-                        <input type="email" id="loginName" class="form-control" required autocomplete="off" />
-                        <label class="form-label" for="loginName">Email or username</label>
+                        <input type="email" id="loginName" name="email" class="form-control" required autocomplete="off" />
+                        <label class="form-label" for="loginName">Email</label>
                     </div>
 
                     <!-- Password input -->
                     <div class="form-outline mb-4">
-                        <input type="password" id="loginPassword" class="form-control" required autocomplete="off" />
+                        <input type="password" id="loginPassword" name="password" class="form-control" required autocomplete="off" />
                         <label class="form-label" for="loginPassword">Password</label>
                     </div>
 
@@ -113,7 +114,7 @@
 
                         <div class="col-md-6 d-flex justify-content-center">
                             <!-- Simple link -->
-                            <a href="#!">Forgot password?</a>
+                            <a href="#">Forgot password?</a>
                         </div>
                     </div>
 
@@ -125,6 +126,7 @@
             <!-- Sign up form -->
             <div class="tab-pane fade" id="pills-register" role="tabpanel" aria-labelledby="tab-register">
                 <form action="#" class="needs-validation" novalidate>
+                    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
                     <div class="text-center mb-3">
                         <p>Sign up with:</p>
                         <button type="button" class="btn btn-link btn-floating mx-1">
