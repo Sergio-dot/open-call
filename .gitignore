@@ -11,3 +11,6 @@ main.exe
 
 # database config
 /database.yml
+
+# run script
+run.sh
