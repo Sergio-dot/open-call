@@ -19,7 +19,16 @@ func routes(app *config.AppConfig) http.Handler {
 
 	// routes
 	mux.Get("/", handlers.Repo.Home)
-	mux.Get("/room", handlers.Repo.Room)
+	mux.Post("/user/signin", handlers.Repo.SignIn)
+	mux.Get("/user/signout", handlers.Repo.SignOut)
+
+	// routes protected by authentication middleware
+	mux.Route("/", func(mux chi.Router) {
+		mux.Use(Auth)
+
+		mux.Get("/dashboard", handlers.Repo.Dashboard)
+		mux.Get("/room", handlers.Repo.Room)
+	})
 
 	// enable static files
 	fileServer := http.FileServer(http.Dir("./static/"))

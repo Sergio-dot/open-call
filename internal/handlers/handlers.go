@@ -3,10 +3,12 @@ package handlers
 import (
 	"github.com/Sergio-dot/open-call/internal/config"
 	"github.com/Sergio-dot/open-call/internal/driver"
+	"github.com/Sergio-dot/open-call/internal/forms"
 	"github.com/Sergio-dot/open-call/internal/models"
 	"github.com/Sergio-dot/open-call/internal/render"
 	"github.com/Sergio-dot/open-call/internal/repository"
 	"github.com/Sergio-dot/open-call/internal/repository/dbrepo"
+	"log"
 	"net/http"
 )
 
@@ -34,15 +36,77 @@ func NewHandlers(r *Repository) {
 
 // Home is the home page handler
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
-	err := render.Template(w, r, "home.page.tmpl", &models.TemplateData{})
+	err := render.Template(w, r, "home.page.tmpl", &models.TemplateData{
+		Form: forms.New(nil),
+	})
 	if err != nil {
 		return
 	}
 }
 
-// SignIn is the handler to log the user in
+// SignIn handles signing the user in
 func (m *Repository) SignIn(w http.ResponseWriter, r *http.Request) {
-	// TODO: user login
+	// refresh the session token
+	_ = m.App.Session.RenewToken(r.Context())
+
+	// parse the login form
+	err := r.ParseForm()
+	if err != nil {
+		log.Println(err)
+	}
+
+	// retrieve login credentials input by user
+	email := r.Form.Get("email")
+	password := r.Form.Get("password")
+
+	// form validation
+	form := forms.New(r.PostForm)
+	form.Required("email", "password")
+	form.IsEmail("email")
+	if !form.Valid() {
+		m.App.Session.Put(r.Context(), "error", "Invalid login credentials")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	// authenticate user
+	id, _, err := m.DB.Authenticate(email, password)
+	if err != nil {
+		log.Println(err)
+
+		m.App.Session.Put(r.Context(), "error", "Invalid login credentials")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	// stores user id in the session
+	m.App.Session.Put(r.Context(), "user_id", id)
+
+	// prompt a flash message
+	m.App.Session.Put(r.Context(), "flash", "Logged in")
+
+	// redirect user to dashboard
+	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+}
+
+// SignOut handles signing the user out
+func (m *Repository) SignOut(w http.ResponseWriter, r *http.Request) {
+	// destroy the session
+	_ = m.App.Session.Destroy(r.Context())
+
+	// refresh the session token
+	_ = m.App.Session.RenewToken(r.Context())
+
+	// redirect user to home page
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// Dashboard is the dashboard page handler
+func (m *Repository) Dashboard(w http.ResponseWriter, r *http.Request) {
+	err := render.Template(w, r, "dashboard.page.tmpl", &models.TemplateData{})
+	if err != nil {
+		return
+	}
 }
 
 // Room is the room page handler

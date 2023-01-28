@@ -46,6 +46,26 @@
         // Used to access to the Prompt() functions
         let attention = Prompt();
 
+        // Handles client-side form validation
+        (() => {
+            'use strict'
+
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            const forms = document.querySelectorAll('.needs-validation');
+
+            // Loop over them and prevent submission
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+
+                    form.classList.add('was-validated');
+                }, false);
+            })
+        })();
+
         // Module that stores different functions to prompt information to the user's attention like
         // alerts, notifications and custom popup dialogs.
         function Prompt() {
@@ -158,6 +178,27 @@
                 notify: notify,
             }
         }
+
+        // TODO - use Swal.fire to prompt log in message
+
+        function notify(msg, msgType) {
+            notie.alert({
+                type: msgType,
+                text: msg,
+            })
+        }
+
+        {{with .Error}}
+            notify("{{.}}", "error")
+        {{end}}
+
+        {{with .Flash}}
+            notify("{{.}}", "success")
+        {{end}}
+
+        {{with .Warning}}
+            notify("{{.}}", "warning")
+        {{end}}
     </script>
     </body>
     </html>
