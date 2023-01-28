@@ -1,5 +1,5 @@
 create_table("users") {
-  t.Column("id", "uuid", {primary: true})
+  t.Column("id", "integer", {primary: true})
   t.Column("email", "string", {})
   t.Column("username", "string", {})
   t.Column("password", "string", {"size": 60})
