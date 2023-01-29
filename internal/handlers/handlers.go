@@ -70,7 +70,7 @@ func (m *Repository) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// authenticate user
-	id, _, err := m.DB.Authenticate(email, password)
+	id, username, _, err := m.DB.Authenticate(email, password)
 	if err != nil {
 		log.Println(err)
 
@@ -79,14 +79,63 @@ func (m *Repository) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// stores user id in the session
+	// stores user id and username in the session
 	m.App.Session.Put(r.Context(), "user_id", id)
+	m.App.Session.Put(r.Context(), "username", username)
 
 	// prompt a flash message
 	m.App.Session.Put(r.Context(), "flash", "Logged in")
 
 	// redirect user to dashboard
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+}
+
+// SignUp handles the user registration
+func (m *Repository) SignUp(w http.ResponseWriter, r *http.Request) {
+	// refresh the session token
+	_ = m.App.Session.RenewToken(r.Context())
+
+	// parse the sign-up form
+	err := r.ParseForm()
+	if err != nil {
+		log.Println(err)
+	}
+
+	// retrieve registration credentials input by user - password is hashed directly, for security reasons
+	username := r.Form.Get("registrationUsername")
+	email := r.Form.Get("registrationEmail")
+	password := r.Form.Get("registrationPassword")
+	repeatPassword := r.Form.Get("registrationRepeatPassword")
+
+	// check if 'password' matches 'repeatPassword'
+	if password != repeatPassword {
+		m.App.Session.Put(r.Context(), "warning", "Password doesn't match")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	newUser := models.User{
+		Username: username,
+		Email:    email,
+		Password: password,
+	}
+
+	// form validation
+	form := forms.New(r.PostForm)
+	form.Required("registrationUsername", "registrationEmail", "registrationPassword", "registrationRepeatPassword")
+	form.IsEmail("email")
+
+	// insert user into the database
+	err = m.DB.CreateUser(newUser)
+	if err != nil {
+		return
+	}
+
+	// prompt a flash message
+	m.App.Session.Put(r.Context(), "flash", "Registered successfully. Now you can sign in with your credentials")
+
+	// redirect user to home page
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 // SignOut handles signing the user out
@@ -103,7 +152,15 @@ func (m *Repository) SignOut(w http.ResponseWriter, r *http.Request) {
 
 // Dashboard is the dashboard page handler
 func (m *Repository) Dashboard(w http.ResponseWriter, r *http.Request) {
-	err := render.Template(w, r, "dashboard.page.tmpl", &models.TemplateData{})
+	// get username from session
+	username := m.App.Session.Get(r.Context(), "username")
+
+	data := make(map[string]interface{})
+	data["username"] = username
+
+	err := render.Template(w, r, "dashboard.page.tmpl", &models.TemplateData{
+		Data: data,
+	})
 	if err != nil {
 		return
 	}

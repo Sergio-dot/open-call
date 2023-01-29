@@ -20,6 +20,7 @@ func routes(app *config.AppConfig) http.Handler {
 	// routes
 	mux.Get("/", handlers.Repo.Home)
 	mux.Post("/user/signin", handlers.Repo.SignIn)
+	mux.Post("/user/signup", handlers.Repo.SignUp)
 	mux.Get("/user/signout", handlers.Repo.SignOut)
 
 	// routes protected by authentication middleware

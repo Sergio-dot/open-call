@@ -113,7 +113,8 @@
 
             <!-- Sign up form -->
             <div class="tab-pane fade" id="pills-register" role="tabpanel" aria-labelledby="tab-register">
-                <form action="#" class="needs-validation" novalidate>
+                <form action="/user/signup" method="post" class="needs-validation" novalidate>
+                    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
                     <div class="text-center mb-3">
                         <p>Sign up with:</p>
                         <button type="button" class="btn btn-link btn-floating mx-1">
@@ -137,32 +138,37 @@
 
                     <!-- Username input -->
                     <div class="form-outline mb-4">
-                        <input type="text" id="registerUsername" class="form-control" required autocomplete="off"/>
-                        <label class="form-label" for="registerUsername">Username</label>
+                        <input type="text" id="registrationUsername" name="registrationUsername" class="form-control"
+                               required autocomplete="off"/>
+                        <label class="form-label" for="registrationUsername">Username</label>
                     </div>
 
                     <!-- Email input -->
                     <div class="form-outline mb-4">
-                        <input type="email" id="registerEmail" class="form-control" required autocomplete="off"/>
-                        <label class="form-label" for="registerEmail">Email</label>
+                        <input type="email" id="registrationEmail" name="registrationEmail" class="form-control"
+                               required autocomplete="off"/>
+                        <label class="form-label" for="registrationEmail">Email</label>
                     </div>
 
                     <!-- Password input -->
                     <div class="form-outline mb-4">
-                        <input type="password" id="registerPassword" class="form-control" required autocomplete="off"/>
-                        <label class="form-label" for="registerPassword">Password</label>
+                        <input type="password" id="registrationPassword" name="registrationPassword"
+                               class="form-control" required autocomplete="off"/>
+                        <label class="form-label" for="registrationPassword">Password</label>
                     </div>
 
                     <!-- Repeat Password input -->
                     <div class="form-outline mb-4">
-                        <input type="password" id="registerRepeatPassword" class="form-control" required
+                        <input type="password" id="registrationRepeatPassword" name="registrationRepeatPassword"
+                               class="form-control" required
                                autocomplete="off"/>
-                        <label class="form-label" for="registerRepeatPassword">Repeat password</label>
+                        <label class="form-label" for="registrationRepeatPassword">Repeat password</label>
                     </div>
 
                     <!-- Checkbox -->
                     <div class="form-check d-flex justify-content-center mb-4">
                         <input class="form-check-input me-2" type="checkbox" value="" id="registerCheck"
+                               name="registerCheck"
                                aria-describedby="registerCheckHelpText" required/>
                         <label class="form-check-label" for="registerCheck">
                             I have read and agree to the terms

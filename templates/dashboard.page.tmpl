@@ -1,13 +1,14 @@
 {{template "base" .}}
 
 {{define "content"}}
+    {{$username := index .Data "username"}}
 
     <!-- Container -->
     <div class="container">
 
         <div class="row">
             <div class="col">
-                <h1>This will be the dashboard page</h1>
+                <h1>This will be the dashboard page for {{$username}}</h1>
                 {{if eq .IsAuthenticated 1}}
                     <a href="/user/signout" class="btn btn-outline-danger">Logout</a>
                 {{end}}

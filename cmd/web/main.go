@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/gob"
 	"flag"
 	"fmt"
@@ -32,7 +33,12 @@ func main() {
 	if err != nil {
 		log.Fatal("error running application", err)
 	}
-	defer db.SQL.Close()
+	defer func(SQL *sql.DB) {
+		err := SQL.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(db.SQL)
 
 	fmt.Println(fmt.Sprintf("Starting application on port %s", port))
 	srv := http.Server{
