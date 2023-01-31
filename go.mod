@@ -12,6 +12,7 @@ require (
 )
 
 require (
+	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
 	github.com/stretchr/testify v1.8.1 // indirect
