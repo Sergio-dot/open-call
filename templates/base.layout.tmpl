@@ -14,11 +14,6 @@
         <!-- Font Awesome -->
         <link rel="stylesheet"
               href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-        <!-- Google Fonts Roboto -->
-        <link rel="stylesheet"
-              href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"/>
-        <!-- MDB -->
-        <link rel="stylesheet" href="/static/css/mdb.min.css"/>
         <!-- Notie -->
         <link rel="stylesheet" type="text/css" href="https://unpkg.com/notie/dist/notie.min.css">
         {{block "css" .}}
@@ -35,8 +30,10 @@
     {{block "js" .}}
 
     {{end}}
-    <!-- MDB -->
-    <script type="text/javascript" src="/static/js/mdb.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+            crossorigin="anonymous"></script>
     <!-- Notie -->
     <script src="https://unpkg.com/notie"></script>
     <!-- Sweet Alert 2 -->
@@ -123,6 +120,8 @@
              * footer: string - default "" (empty string)
              *
              * confirmButtonText: string - default "Confirm"
+             *
+             * showCancelButton: bool - default "false"
              */
             let modal = function (c) {
                 const {
@@ -130,7 +129,8 @@
                     text = "",
                     title = "",
                     footer = "",
-                    confirmButtonText = "Confirm"
+                    confirmButtonText = "Confirm",
+                    showCancelButton = "false"
                 } = c;
 
                 Swal.fire({
@@ -139,47 +139,35 @@
                     icon: icon,
                     footer: footer,
                     confirmButtonText: confirmButtonText,
-                })
-            }
-
-            /* Sends a notification on the top of the screen displaying an alert with specified properties.
-             *
-             * type: ['success', 'warning', 'error', 'info', 'neutral'] - default 'success'
-             *
-             * text: string - default "" (empty string)
-             *
-             * stay: bool - default 'false'
-             *
-             * time: int - default 3
-             *
-             * position: ['top', 'bottom'] - default 'top'
-             */
-            let notify = function (c) {
-                const {
-                    type = "success",
-                    text = "",
-                    stay = false,
-                    time = 3,
-                    position = top,
-                } = c;
-
-                notie.alert({
-                    type: type,
-                    text: text,
-                    stay: stay, // optional, default = false
-                    time: time, // optional, default = 3, minimum = 1,
-                    position: position // optional, default = 'top', enum: ['top', 'bottom']
+                    showCancelButton: showCancelButton,
                 })
             }
 
             return {
                 toast: toast,
                 modal: modal,
-                notify: notify,
             }
         }
 
         // TODO - use Swal.fire to prompt log in message
+        function toast(msg, msgType) {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            })
+
+            Toast.fire({
+                icon: msgType,
+                title: msg
+            })
+        }
 
         function notify(msg, msgType) {
             notie.alert({
@@ -188,16 +176,20 @@
             })
         }
 
+        {{with .Toast}}
+        toast("{{.}}", "success")
+        {{end}}
+
         {{with .Error}}
-            notify("{{.}}", "error")
+        notify("{{.}}", "error")
         {{end}}
 
         {{with .Flash}}
-            notify("{{.}}", "success")
+        notify("{{.}}", "success")
         {{end}}
 
         {{with .Warning}}
-            notify("{{.}}", "warning")
+        notify("{{.}}", "warning")
         {{end}}
     </script>
     </body>

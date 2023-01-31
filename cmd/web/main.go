@@ -122,3 +122,5 @@ func run() (*driver.DB, error) {
 
 	return db, nil
 }
+
+// TODO - log in with socials

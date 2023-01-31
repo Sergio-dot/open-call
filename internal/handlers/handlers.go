@@ -8,8 +8,10 @@ import (
 	"github.com/Sergio-dot/open-call/internal/render"
 	"github.com/Sergio-dot/open-call/internal/repository"
 	"github.com/Sergio-dot/open-call/internal/repository/dbrepo"
+	"github.com/go-chi/chi"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 // Repo is the repository used by the handlers
@@ -70,7 +72,7 @@ func (m *Repository) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// authenticate user
-	id, username, _, err := m.DB.Authenticate(email, password)
+	id, _, err := m.DB.Authenticate(email, password)
 	if err != nil {
 		log.Println(err)
 
@@ -81,10 +83,9 @@ func (m *Repository) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	// stores user id and username in the session
 	m.App.Session.Put(r.Context(), "user_id", id)
-	m.App.Session.Put(r.Context(), "username", username)
 
 	// prompt a flash message
-	m.App.Session.Put(r.Context(), "flash", "Logged in")
+	m.App.Session.Put(r.Context(), "toast", "Logged in")
 
 	// redirect user to dashboard
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
@@ -148,17 +149,55 @@ func (m *Repository) SignOut(w http.ResponseWriter, r *http.Request) {
 
 	// redirect user to home page
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+	m.App.Session.Put(r.Context(), "toast", "Disconnected")
+}
+
+// UpdateUser handles update request by a user
+func (m *Repository) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	// convert id parameter to appropriate type
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+
+	// retrieve user from database using the provided id
+	u, err := m.DB.GetUserByID(id)
+	if err != nil {
+		log.Println("could not find user", err)
+	}
+
+	// get information to update
+	uname := r.URL.Query().Get("uname")
+	email := r.URL.Query().Get("email")
+
+	u.Username = uname
+	u.Email = email
+
+	// update user data into database
+	err = m.DB.UpdateUser(u)
+	if err != nil {
+		log.Fatal("could not update user", err)
+	}
+
+	// redirect user
+	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+	m.App.Session.Put(r.Context(), "toast", "Updated successfully")
 }
 
 // Dashboard is the dashboard page handler
 func (m *Repository) Dashboard(w http.ResponseWriter, r *http.Request) {
-	// get username from session
-	username := m.App.Session.Get(r.Context(), "username")
+	id := m.App.Session.Get(r.Context(), "user_id")
+	// pull user info from database
+	user, err := m.DB.GetUserByID(id.(int))
+	if err != nil {
+		log.Println(err)
+	}
 
+	// store user info into template data
 	data := make(map[string]interface{})
-	data["username"] = username
+	data["id"] = user.ID
+	data["username"] = user.Username
+	data["email"] = user.Email
+	data["createdAt"] = user.CreatedAt.Format("02-01-2006")
 
-	err := render.Template(w, r, "dashboard.page.tmpl", &models.TemplateData{
+	err = render.Template(w, r, "dashboard.page.tmpl", &models.TemplateData{
 		Data: data,
 	})
 	if err != nil {

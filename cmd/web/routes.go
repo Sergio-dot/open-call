@@ -21,12 +21,13 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Get("/", handlers.Repo.Home)
 	mux.Post("/user/signin", handlers.Repo.SignIn)
 	mux.Post("/user/signup", handlers.Repo.SignUp)
-	mux.Get("/user/signout", handlers.Repo.SignOut)
 
 	// routes protected by authentication middleware
 	mux.Route("/", func(mux chi.Router) {
 		mux.Use(Auth)
 
+		mux.Get("/user/signout", handlers.Repo.SignOut)
+		mux.Get("/user/update/{id}/do", handlers.Repo.UpdateUser)
 		mux.Get("/dashboard", handlers.Repo.Dashboard)
 		mux.Get("/room", handlers.Repo.Room)
 	})

@@ -13,13 +13,14 @@ func (m *postgresDBRepo) GetUserByID(id int) (models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	query := `select id, email, password, created_at, updated_at from users where id = $1`
+	query := `select id, username, email, password, created_at, updated_at from users where id = $1`
 
 	row := m.DB.QueryRowContext(ctx, query, id)
 
 	var u models.User
 	err := row.Scan(
 		&u.ID,
+		&u.Username,
 		&u.Email,
 		&u.Password,
 		&u.CreatedAt,
@@ -59,9 +60,9 @@ func (m *postgresDBRepo) UpdateUser(u models.User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	query := `update users set email = $1, updated_at = $2`
+	query := `update users set email = $1, username = $2, updated_at = $3 where id = $4`
 
-	_, err := m.DB.ExecContext(ctx, query, u.Email, time.Now())
+	_, err := m.DB.ExecContext(ctx, query, u.Email, u.Username, time.Now(), u.ID)
 
 	if err != nil {
 		return err
@@ -71,7 +72,7 @@ func (m *postgresDBRepo) UpdateUser(u models.User) error {
 }
 
 // Authenticate perform user authentication
-func (m *postgresDBRepo) Authenticate(email, testPassword string) (int, string, string, error) {
+func (m *postgresDBRepo) Authenticate(email, testPassword string) (int, string, error) {
 	// create a temporary context
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -87,16 +88,16 @@ func (m *postgresDBRepo) Authenticate(email, testPassword string) (int, string, 
 	row := m.DB.QueryRowContext(ctx, "select id, username, password from users where email = $1", email)
 	err := row.Scan(&id, &username, &hashedPassword)
 	if err != nil {
-		return id, "", "", err
+		return id, "", err
 	}
 
 	// compares hashedPassword (stored in database) with password (input by the user in the form) hashed
 	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(testPassword))
 	if err == bcrypt.ErrMismatchedHashAndPassword {
-		return 0, "", "", errors.New("incorrect password")
+		return 0, "", errors.New("incorrect password")
 	} else if err != nil {
-		return 0, "", "", err
+		return 0, "", err
 	}
 
-	return id, username, hashedPassword, nil
+	return id, hashedPassword, nil
 }
