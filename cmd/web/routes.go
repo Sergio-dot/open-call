@@ -1,11 +1,12 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/Sergio-dot/open-call/internal/config"
 	"github.com/Sergio-dot/open-call/internal/handlers"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"net/http"
 )
 
 func routes(app *config.AppConfig) http.Handler {
@@ -29,7 +30,8 @@ func routes(app *config.AppConfig) http.Handler {
 		mux.Get("/user/signout", handlers.Repo.SignOut)
 		mux.Get("/user/update/{id}/do", handlers.Repo.UpdateUser)
 		mux.Get("/dashboard", handlers.Repo.Dashboard)
-		mux.Get("/room", handlers.Repo.Room)
+
+		// TODO - room routes
 	})
 
 	// enable static files

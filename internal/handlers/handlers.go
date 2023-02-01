@@ -1,6 +1,10 @@
 package handlers
 
 import (
+	"log"
+	"net/http"
+	"strconv"
+
 	"github.com/Sergio-dot/open-call/internal/config"
 	"github.com/Sergio-dot/open-call/internal/driver"
 	"github.com/Sergio-dot/open-call/internal/forms"
@@ -9,9 +13,6 @@ import (
 	"github.com/Sergio-dot/open-call/internal/repository"
 	"github.com/Sergio-dot/open-call/internal/repository/dbrepo"
 	"github.com/go-chi/chi"
-	"log"
-	"net/http"
-	"strconv"
 )
 
 // Repo is the repository used by the handlers
@@ -183,7 +184,9 @@ func (m *Repository) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 // Dashboard is the dashboard page handler
 func (m *Repository) Dashboard(w http.ResponseWriter, r *http.Request) {
+	// get user id from session
 	id := m.App.Session.Get(r.Context(), "user_id")
+
 	// pull user info from database
 	user, err := m.DB.GetUserByID(id.(int))
 	if err != nil {
@@ -200,14 +203,6 @@ func (m *Repository) Dashboard(w http.ResponseWriter, r *http.Request) {
 	err = render.Template(w, r, "dashboard.page.tmpl", &models.TemplateData{
 		Data: data,
 	})
-	if err != nil {
-		return
-	}
-}
-
-// Room is the room page handler
-func (m *Repository) Room(w http.ResponseWriter, r *http.Request) {
-	err := render.Template(w, r, "room.page.tmpl", &models.TemplateData{})
 	if err != nil {
 		return
 	}

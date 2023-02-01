@@ -5,6 +5,11 @@ import (
 	"encoding/gob"
 	"flag"
 	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/Sergio-dot/open-call/internal/config"
 	"github.com/Sergio-dot/open-call/internal/driver"
 	"github.com/Sergio-dot/open-call/internal/handlers"
@@ -12,10 +17,6 @@ import (
 	"github.com/Sergio-dot/open-call/internal/models"
 	"github.com/Sergio-dot/open-call/internal/render"
 	"github.com/alexedwards/scs/v2"
-	"log"
-	"net/http"
-	"os"
-	"time"
 )
 
 const port = ":8080"
@@ -122,5 +123,3 @@ func run() (*driver.DB, error) {
 
 	return db, nil
 }
-
-// TODO - log in with socials

@@ -82,12 +82,12 @@
             <hr>
             <ul class="d-grid gap-2 nav nav-pills flex-column mb-auto justify-content-center">
                 <li class="align-self-center">
-                    <button type="button" class="btn btn-outline-primary">
+                    <button id="btn-create" type="button" class="btn btn-outline-primary">
                         <i class="fa-solid fa-plus me-2"></i><span>Create room</span>
                     </button>
                 </li>
                 <li class="align-self-center">
-                    <button type="button" class="btn btn-outline-primary w-100">
+                    <button id="btn-join" type="button" class="btn btn-outline-primary w-100">
                         <i class="fa-solid fa-right-to-bracket me-2"></i><span>Join room</span>
                     </button>
                 </li>
@@ -101,7 +101,7 @@
                 <i class="fa-solid fa-right-from-bracket me-2"></i><span>Logout</span>
             </a>
             <hr>
-            <div class="align-self-center">
+            <div class="align-self-center unselectable">
                 <p>Logged in as: <strong>{{$username}}</strong></p>
             </div>
         </div>
@@ -220,6 +220,19 @@
                     let uname = document.getElementById("username").value;
                     let email = document.getElementById("email").value;
                     window.location.href = "/user/update/{{index .Data "id"}}/do?uname=" + uname + "&email=" + email;
+                }
+            })
+        })
+
+        // Click on btn-create -> Create new room
+        document.getElementById("btn-create").addEventListener("click", async function () {
+            const { value: formValues } = await Swal.fire({
+                title: 'Room name:',
+                html: '<input id="swal-input" class="swal2-input">',
+                focusConfirm: false,
+                preConfirm: () => {
+                    let name = document.getElementById('swal-input').value;
+                    window.location.replace(`/room/create`);
                 }
             })
         })
