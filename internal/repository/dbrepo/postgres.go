@@ -10,13 +10,17 @@ import (
 
 // GetUserByID returns a User by its ID
 func (m *postgresDBRepo) GetUserByID(id int) (models.User, error) {
+	// create a temporary context
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
+	// query for the database
 	query := `select id, username, email, password, created_at, updated_at from users where id = $1`
 
+	// execute the query
 	row := m.DB.QueryRowContext(ctx, query, id)
 
+	// store found user information into u variable of type models.User
 	var u models.User
 	err := row.Scan(
 		&u.ID,
@@ -40,7 +44,7 @@ func (m *postgresDBRepo) CreateUser(u models.User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	// query the database
+	// query for the database
 	query := `insert into users (email, username, password, created_at, updated_at) values ($1, $2, $3, $4, $5)`
 
 	// generate hashed password from testPassword (input by the user)
@@ -57,11 +61,14 @@ func (m *postgresDBRepo) CreateUser(u models.User) error {
 
 // UpdateUser updates a user in the database
 func (m *postgresDBRepo) UpdateUser(u models.User) error {
+	// create a temporary context
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
+	// query for the database
 	query := `update users set email = $1, username = $2, updated_at = $3 where id = $4`
 
+	// execute query
 	_, err := m.DB.ExecContext(ctx, query, u.Email, u.Username, time.Now(), u.ID)
 
 	if err != nil {
@@ -100,4 +107,67 @@ func (m *postgresDBRepo) Authenticate(email, testPassword string) (int, string, 
 	}
 
 	return id, hashedPassword, nil
+}
+
+// CreateRoom creates a new record in the database representing a room
+func (m *postgresDBRepo) CreateRoom(r models.Room) error {
+	// create a temporary context
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	// query the database
+	query := `insert into rooms (id, user_id, name, created_at, updated_at) values ($1, $2, $3, $4, $5)`
+
+	// exec query with context
+	_, err := m.DB.ExecContext(ctx, query, r.ID, r.UserID, r.Name, time.Now(), time.Now())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetRoomByID returns a Room by its ID
+func (m *postgresDBRepo) GetRoomByID(id string) (models.Room, error) {
+	// create a temporary context
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	// query for the database
+	query := `select id, user_id, name, created_at, updated_at from rooms where id = $1`
+
+	// execute the query
+	row := m.DB.QueryRowContext(ctx, query, id)
+
+	// store found room information into r variable of type models.Room
+	var r models.Room
+	err := row.Scan(
+		&r.ID,
+		&r.UserID,
+		&r.Name,
+		&r.CreatedAt,
+		&r.UpdatedAt,
+	)
+
+	if err != nil {
+		return r, err
+	}
+
+	return r, nil
+}
+
+// DeleteRoom deletes specified room from database
+func (m *postgresDBRepo) DeleteRoom(id string) error {
+	// create a temporary context
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `delete from rooms where id = $1`
+
+	_, err := m.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

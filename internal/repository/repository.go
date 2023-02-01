@@ -7,4 +7,6 @@ type DatabaseRepo interface {
 	CreateUser(u models.User) error
 	UpdateUser(u models.User) error
 	Authenticate(email, testPassword string) (int, string, error)
+
+	CreateRoom(r models.Room) error
 }
