@@ -42,6 +42,7 @@ func main() {
 	}(db.SQL)
 
 	fmt.Println(fmt.Sprintf("Starting application on port %s", port))
+	fmt.Println(fmt.Sprintf("http://localhost:8080"))
 	srv := http.Server{
 		Addr:    port,
 		Handler: routes(&app),
