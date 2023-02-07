@@ -13,3 +13,16 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+# .idea directory and subdirectories/files
+.idea
+
+# Log files
+*.log
+
+# Config files
+.air.toml
+
+# Database files
+database.yml
+schema.sql
