@@ -26,3 +26,6 @@
 # Database files
 database.yml
 schema.sql
+
+# .env files
+.env
