@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -15,6 +16,12 @@ func Stream(c *fiber.Ctx) error {
 	if suuid == "" {
 		c.Status(400)
 		return nil
+	}
+
+	sess, err := Store.Get(c)
+	if err != nil {
+		log.Println(err)
+		return c.Redirect("/")
 	}
 
 	ws := "ws"
@@ -31,6 +38,11 @@ func Stream(c *fiber.Ctx) error {
 			"ViewerWebsocketAddr": fmt.Sprintf("%s://%s/stream/%s/viewer/websocket", ws, c.Hostname(), suuid),
 			"Type":                "stream",
 			"PageTitle":           "OpenCall - Viewer",
+			"UserID":              sess.Get("userID"),
+			"Email":               sess.Get("email"),
+			"Username":            sess.Get("username"),
+			"CreatedAt":           sess.Get("createdAt"),
+			"UpdatedAt":           sess.Get("updatedAt"),
 		}, "layouts/main")
 	}
 	w.RoomsLock.Unlock()
