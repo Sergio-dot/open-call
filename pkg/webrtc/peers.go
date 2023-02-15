@@ -22,18 +22,24 @@ var (
 var (
 	turnConfig = webrtc.Configuration{
 		ICETransportPolicy: webrtc.ICETransportPolicyRelay,
+		// TODO - need working stun/turn servers
 		ICEServers: []webrtc.ICEServer{
 			{
 
-				URLs: []string{"stun:turn.localhost:3478"},
+				URLs: []string{"stun:stun.l.google.com:19302"},
 			},
 			{
 
-				URLs: []string{"turn:turn.localhost:3478"},
+				URLs:           []string{"turn:relay.metered.ca:80"},
+				Username:       `1b176fb3d756c3300bba247a`,
+				Credential:     `CD/hGxq9WXgZ/UZu`,
+				CredentialType: webrtc.ICECredentialTypePassword,
+			},
+			{
 
-				Username: "test",
-
-				Credential:     "test",
+				URLs:           []string{"turn:relay.metered.ca:443"},
+				Username:       `1b176fb3d756c3300bba247a`,
+				Credential:     `CD/hGxq9WXgZ/UZu`,
 				CredentialType: webrtc.ICECredentialTypePassword,
 			},
 		},
