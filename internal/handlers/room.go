@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -26,6 +27,12 @@ func Room(c *fiber.Ctx) error {
 		return nil
 	}
 
+	sess, err := Store.Get(c)
+	if err != nil {
+		log.Println(err)
+		return c.Redirect("/")
+	}
+
 	ws := "ws"
 	if os.Getenv("ENVIRONMENT") == "PRODUCTION" {
 		ws = "wss"
@@ -40,6 +47,11 @@ func Room(c *fiber.Ctx) error {
 		"StreamLink":          fmt.Sprintf("%s://%s/stream/%s", c.Protocol(), c.Hostname(), suuid),
 		"Type":                "room",
 		"PageTitle":           "OpenCall - Streamer",
+		"UserID":              sess.Get("userID"),
+		"Email":               sess.Get("email"),
+		"Username":            sess.Get("username"),
+		"CreatedAt":           sess.Get("createdAt"),
+		"UpdatedAt":           sess.Get("updatedAt"),
 	}, "layouts/main")
 }
 
