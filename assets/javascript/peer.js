@@ -33,64 +33,53 @@ function copyToClipboard(text) {
 }
 
 function connect(stream) {
-    document.getElementById("no-perm").style.display = 'none'
-
-    // creates a new peer connection
+    document.getElementById('peers').style.display = 'block'
+    document.getElementById('chat').style.display = 'flex'
+    document.getElementById('noperm').style.display = 'none'
     let pc = new RTCPeerConnection({
         iceServers: [{
-            'urls': 'stun:turn.videochat:3478',
+            'urls': 'stun:stun.l.google.com:19302',
         },
             {
-                'urls': 'turn:turn.videochat:3478',
-                'username': 'user',
-                'credential': 'user',
-            }
+                'urls': 'turn:relay.metered.ca:80',
+                'username': '1b176fb3d756c3300bba247a',
+                'credential': 'CD/hGxq9WXgZ/UZu',
+            },
         ]
     })
-
-    // handles track event
     pc.ontrack = function (event) {
         if (event.track.kind === 'audio') {
             return
         }
 
-        // creates new video container in the DOM
-        let newCol = document.createElement("div")
-        newCol.className = "col"
+        col = document.createElement("div")
+        col.className = "column is-6 peer"
         let el = document.createElement(event.track.kind)
         el.srcObject = event.streams[0]
         el.setAttribute("controls", "true")
         el.setAttribute("autoplay", "true")
         el.setAttribute("playsinline", "true")
-        newCol.appendChild(el)
-        document.getElementById('no-one').style.display = 'none'
-        document.getElementById('no-con').style.display = 'none'
-        document.getElementById('videos').appendChild(newCol)
+        col.appendChild(el)
+        document.getElementById('noone').style.display = 'none'
+        document.getElementById('videos').appendChild(col)
 
-        // handles mute event
         event.track.onmute = function (event) {
             el.play()
         }
 
-        // handles remove track event
         event.streams[0].onremovetrack = ({track}) => {
             if (el.parentNode) {
                 el.parentNode.remove()
             }
-
             if (document.getElementById('videos').childElementCount <= 3) {
-                document.getElementById('no-one').style.display = 'grid'
-                document.getElementById('no-streamer').style.display = 'grid'
+                document.getElementById('noone').style.display = 'grid'
             }
         }
     }
 
     stream.getTracks().forEach(track => pc.addTrack(track, stream))
 
-    // creates websocket for new peer
     let ws = new WebSocket(RoomWebsocketAddr)
-
-    // handles ice candidates
     pc.onicecandidate = e => {
         if (!e.candidate) {
             return
@@ -106,27 +95,25 @@ function connect(stream) {
         console.log('error: ', event)
     })
 
-    // handles websocket closure
     ws.onclose = function (evt) {
-        console.log("websocket has been closed")
+        console.log("websocket has closed")
         pc.close();
         pc = null;
         pr = document.getElementById('videos')
         while (pr.childElementCount > 3) {
             pr.lastChild.remove()
         }
-        document.getElementById('no-one').style.display = 'none'
-        document.getElementById('no-con').style.display = 'flex'
+        document.getElementById('noone').style.display = 'none'
+        document.getElementById('nocon').style.display = 'flex'
         setTimeout(function () {
             connect(stream);
         }, 1000);
     }
 
-    // handles websocket messages
     ws.onmessage = function (evt) {
         let msg = JSON.parse(evt.data)
         if (!msg) {
-            return console.log("failed to parse message")
+            return console.log('failed to parse msg')
         }
 
         switch (msg.event) {
@@ -155,9 +142,8 @@ function connect(stream) {
         }
     }
 
-    // handles websocket errors
     ws.onerror = function (evt) {
-        console.log('error: ' + evt.data)
+        console.log("error: " + evt.data)
     }
 }
 
@@ -177,7 +163,8 @@ navigator.mediaDevices.getUserMedia({
         channelCount: 2,
         echoCancellation: true
     }
-}).then(stream => {
-    document.getElementById('localVideo').srcObject = stream
-    connect(stream)
-}).catch(err => console.log(err))
+})
+    .then(stream => {
+        document.getElementById('localVideo').srcObject = stream
+        connect(stream)
+    }).catch(err => console.log(err))
