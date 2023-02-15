@@ -1,0 +1,107 @@
+<!-- CSS -->
+<style>
+    .chat {
+        box-shadow: 5px 5px #F5E79D;
+        z-index: 99;
+        position: fixed;
+        bottom: 20px;
+        right: 50px;
+        width: 22%;
+    }
+
+    .chat #msg {
+        border-radius: 0%;
+    }
+
+    #chat {
+        display: none;
+    }
+
+    #chat .chat-body {
+        display: flex;
+        background-color: #fffff0;
+        flex-direction: column-reverse;
+        overflow-y: scroll;
+        height: 30vh;
+        margin-top: 5px;
+        margin-bottom: 30px;
+        margin-left: 10px;
+        border-radius: 5%;
+        word-wrap: break-word;
+    }
+
+    .chat .send {
+        width: 100%;
+        position: absolute;
+        height: 20px;
+        bottom: 20px;
+        display: flex;
+    }
+
+    .chat .send .control-input {
+        width: 100%;
+    }
+
+    #chat-content {
+        display: none;
+    }
+
+    #chat-content .chat-body {
+        height: 60vh;
+        overflow-y: scroll;
+    }
+
+    #chat-alert {
+        display: none;
+        border-radius: 50%;
+        background-color: #f14668;
+        font-style: normal;
+        font-weight: bold;
+        width: 22px;
+        height: 22px;
+    }
+
+    .message {
+        background-color: #fffff0;
+    }
+
+    .message-header {
+        cursor: pointer;
+    }
+
+    #chat-header {
+        font-family: 'Roboto', sans-serif;
+        font-weight: bold;
+        font-size: 24px;
+    }
+</style>
+<!-- CSS -->
+
+<!-- HTML -->
+<div id="chat" class="container-fluid float-end p-3">
+    <div class="message chat">
+        <div class="d-flex message-header" onclick="slideToggle()">
+            <p id="chat-header" class="float-start justify-content-center align-items-center ms-2 mt-2 p-2">Chat {{.Username}}</p>
+            <span id="chat-alert" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger justify-content-center align-items-center"></span>
+        </div>
+        <div id="chat-content">
+            <div class="chat-body">
+                <div id="log" class="overflow-auto mb-5"></div>
+            </div>
+            <form id="chat-form" autocomplete="off">
+                <div class="send input-group mb-2">
+                    <div>
+                        <input class="form-control ms-3" id="msg" type="text" placeholder="Message..." />
+                    </div>
+                    <div>
+                        <input id="chat-button" class="btn btn-info ms-5" type="submit" value="Send"/>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- HTML -->
+<script>
+    const username = "{{.Username}}";
+</script>

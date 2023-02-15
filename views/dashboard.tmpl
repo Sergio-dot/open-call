@@ -81,11 +81,12 @@
                     <i class="fa-solid fa-plus me-2"></i><span>Create room</span>
                 </button>
             </li>
-            <li class="align-self-center">
-                <button id="btn-join" type="button" class="btn btn-outline-primary w-100">
-                    <i class="fa-solid fa-right-to-bracket me-2"></i><span>Join room</span>
-                </button>
-            </li>
+            <!-- TODO join an existing room -->
+            <!-- <li class="align-self-center">
+                            <button id="btn-join" type="button" class="btn btn-outline-primary w-100">
+                                <i class="fa-solid fa-right-to-bracket me-2"></i><span>Join room</span>
+                            </button>
+                        </li> -->
             <li class="align-self-center">
                 <button type="button" class="btn btn-outline-dark w-100" id="btn-profile">
                     <i class="fa-solid fa-user me-2"></i><span>Profile</span>
@@ -98,6 +99,7 @@
         <hr>
         <div class="align-self-center unselectable">
             <p>Logged in as: <strong>{{.Username}}</strong></p>
+            <p>Session ID: <strong>{{.SessionID}}</strong></p>
         </div>
     </div>
     <!-- Sidebar -->
