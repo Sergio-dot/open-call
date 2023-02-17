@@ -10,52 +10,85 @@
         background-size: cover;
         font-family: 'Roboto', sans-serif;
     }
+
+    .fa-users {
+        font-size: 18px;
+    }
+
+    .border-count {
+        border-right: 1px solid #ffffff;
+        height: 2em;
+        width: 1px;
+    }
+
+    #viewer-count {
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .video-area {
+        display: block;
+        margin: 0 auto;
+        max-width: 100%;
+        border-radius: 50px;
+        background: #074D96;
+        box-shadow: 20px 20px 60px #064180,
+        -20px -20px 60px #0859ad;
+    }
 </style>
 <!-- CSS -->
 
 <!-- HTML -->
-{{ if .NoStream }}
-    <div class="column">
-        <article class="notification is-danger is-link">
+<div class="container-fluid row">
+    <div class="container-fluid col-6">
+
+        <div class="viewer d-flex align-items-center mt-3 mb-3 p-2 rounded-2 text-white">
+            <i class="fa fa-users p-2"></i>
+            <span class="border-count"></span>
+            <p id="viewer-count" class="ms-2 me-1 mt-3">0</p>
+        </div>
+
+        {{ if .NoStream }}
+        <div class="alert alert-danger w-50 mt-3 ms-3" role="alert">
             There is no stream for the given Stream Link. <br>
             Please join another stream room.
-        </article>
-    </div>
-{{ else }}
+        </div>
+        {{ else }}
 
-    {{ template "partials/chat" . }}
-
-    <div class="viewer">
-        <p class="icon-users" id="viewer-count"></p>
-    </div>
-
-    <div id="peers">
-        <div class="columns is-multiline" id="videos">
-            <div id="noonestream" class="column notif">
-                <article class="notification is-primary is-light">
-                    Hey! <br>
-                    No streamer in the room. <br>
-                    Please wait for the streamer.
-                </article>
-            </div>
-            <div id="nocon" class="column notif">
-                <article class="notification is-danger">
-                    Connection is closed! <br>
-                    Please refresh the page.
-                </article>
+        <div id="peers">
+            <div id="videos">
+                <div id="noonestream">
+                    <div class="alert alert-info w-50" role="alert">
+                        Hey! <br>
+                        No streamer in the room. <br>
+                        Please wait for the streamer.
+                    </div>
+                </div>
+                <div id="nocon" class="column notif">
+                    <div class="alert alert-danger w-50" role="alert">
+                        Connection is closed! <br>
+                        Please refresh the page.
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <!-- HTML -->
 
-    <!-- JS -->
-    <script>
-        let StreamWebsocketAddr = "{{.StreamWebsocketAddr}}"
-        let ChatWebsocketAddr = "{{.ChatWebsocketAddr}}"
-        let ViewerWebsocketAddr = "{{.ViewerWebsocketAddr}}"
-    </script>
-    <script src="/javascript/stream.js"></script>
-    <script src="/javascript/chat.js"></script>
-    <script src="/javascript/viewer.js"></script>
+    <div class="container-fluid col-6">
+        {{ template "partials/chat" . }}
+    </div>
+
+</div>
+<!-- HTML -->
+
+<!-- JS -->
+<script>
+    let StreamWebsocketAddr = "{{.StreamWebsocketAddr}}"
+    let ChatWebsocketAddr = "{{.ChatWebsocketAddr}}"
+    let ViewerWebsocketAddr = "{{.ViewerWebsocketAddr}}"
+</script>
+<script src="/javascript/stream.js"></script>
+<script src="/javascript/chat.js"></script>
+<script src="/javascript/viewer.js"></script>
 {{ end }}
 <!-- JS -->

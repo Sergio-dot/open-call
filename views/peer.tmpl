@@ -34,12 +34,17 @@
         box-shadow: 20px 20px 60px #064180,
         -20px -20px 60px #0859ad;
     }
+
+    .btn-mute {
+        width: 3vw;
+    }
 </style>
 <!-- CSS -->
 
 <!-- HTML -->
 <div class="container-fluid row">
     <div class="container-fluid col-6">
+
         <div class="viewer d-flex align-items-center mt-3 mb-3 p-2 rounded-2 text-white">
             <i class="fa fa-users p-2"></i>
             <span class="border-count"></span>
@@ -56,14 +61,21 @@
         <div id="peers">
             <div id="videos">
                 <div class="peer">
-                    <video id="localVideo" class="video-area" autoplay muted></video>
+                    <video id="localVideo" class="video-area" oncontextmenu="return false;" autoplay muted></video>
+                    <div class="controls text-center mt-3">
+                        <button id="mute-audio-btn" class="btn btn-light btn-mute me-3"><i class="fa fa-microphone"></i></button>
+                        <button id="mute-video-btn" class="btn btn-light btn-mute me-3"><i class="fa fa-video"></i></button>
+                        <button id="share-screen-btn" class="btn btn-danger btn-mute"><i class="fa fa-desktop"></i></button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
     <div class="container-fluid col-6">
         {{ template "partials/chat" . }}
     </div>
+
 </div>
 <!-- HTML -->
 

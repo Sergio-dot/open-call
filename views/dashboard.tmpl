@@ -8,15 +8,6 @@
         background-size: cover;
     }
 
-    .unselectable {
-        -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        -khtml-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-    }
-
     .container {
         max-width: 100%;
         width: 100vw;
@@ -26,7 +17,7 @@
         height: 100vh;
     }
 
-    #content {
+    #update-panel {
         background-color: #ffffff;
         display: none;
     }
@@ -71,9 +62,10 @@
 <!-- HTML -->
 <!-- Container -->
 <div class="container d-flex" id="container">
+
     <!-- Sidebar -->
     <div class="d-flex flex-column flex-shrink-0 p-3 bg-light sidebar">
-        <span class="fs-2 align-self-center unselectable">OpenCall</span>
+        <span class="fs-2 align-self-center user-select-none">OpenCall</span>
         <hr>
         <ul class="d-grid gap-2 nav nav-pills flex-column mb-auto justify-content-center">
             <li class="align-self-center">
@@ -81,12 +73,11 @@
                     <i class="fa-solid fa-plus me-2"></i><span>Create room</span>
                 </button>
             </li>
-            <!-- TODO join an existing room -->
-            <!-- <li class="align-self-center">
-                            <button id="btn-join" type="button" class="btn btn-outline-primary w-100">
-                                <i class="fa-solid fa-right-to-bracket me-2"></i><span>Join room</span>
-                            </button>
-                        </li> -->
+            <li class="align-self-center">
+                <button id="btn-join" type="button" class="btn btn-outline-primary w-100">
+                    <i class="fa-solid fa-right-to-bracket me-2"></i><span>Join room</span>
+                </button>
+            </li>
             <li class="align-self-center">
                 <button type="button" class="btn btn-outline-dark w-100" id="btn-profile">
                     <i class="fa-solid fa-user me-2"></i><span>Profile</span>
@@ -97,34 +88,62 @@
             <i class="fa-solid fa-right-from-bracket me-2"></i><span>Logout</span>
         </button>
         <hr>
-        <div class="align-self-center unselectable">
+        <div class="align-self-center justify-content-center user-select-none">
             <p>Logged in as: <strong>{{.Username}}</strong></p>
-            <p>Session ID: <strong>{{.SessionID}}</strong></p>
         </div>
     </div>
     <!-- Sidebar -->
-    <div id='content' class='position-relative text-white p-5 ms-4 mt-3 mb-3 rounded-3'>
+
+    <!-- Update panel TODO - update password -->
+    <div id='update-panel' class='position-relative text-white p-5 ms-4 mt-3 mb-3 rounded-3'>
+        <h1 class='text-dark'>{{.Username}}'s account information:</h1>
+        <form id='updateForm'>
+            <div class='mb-3'>
+                <label class='form-label text-dark' for='username'>Username:</label>
+                <input id='username' type='text' class='form-control' value='{{.Username}}'
+                       disabled autocomplete="off">
+            </div>
+            <div class='mb-3'>
+                <label class='form-label text-dark' for='email'>Email:</label>
+                <input id='email' type='email' class='form-control' value='{{.Email}}'
+                       disabled autocomplete="off">
+            </div>
+            <div class='mb-3'>
+                <label id='creation-date-label' class='form-label text-dark' for='creation-date'>Registration
+                    date:</label>
+                <input id='creation-date' type='text' class='form-control' value='{{.CreatedAt}}'
+                       disabled>
+            </div>
+            <div class='mb-3 mt-5'>
+                <button id='btn-password' class='btn btn-warning'>
+                    Change Password
+                </button>
+            </div>
+        </form>
         <div id='btn-group' class='position-absolute bottom-0 end-0 mb-4 me-4'>
-            <button id='btn-edit' class='btn btn-primary'>
+            <button id='btn-edit' class='btn btn-outline-primary'>
                 <i class='fa-solid fa-pen-to-square me-2'></i>
                 Edit
             </button>
-            <button id='btn-save' class='btn btn-success'>
+            <button id='btn-save' class='btn btn-outline-success'>
                 <i class='fa-solid fa-floppy-disk me-2'></i>
                 Save
             </button>
-            <button id='btn-cancel' class='btn btn-danger'>
+            <button id='btn-cancel' class='btn btn-outline-danger'>
                 <i class='fa-solid fa-xmark me-2'></i>
                 Cancel
             </button>
         </div>
     </div>
+    <!-- Update panel -->
+
 </div>
 <!-- Container -->
 <!-- HTML -->
 
 <!-- JavaScript -->
 <script>
+    // Click on btn-create -> Create a new room
     document.getElementById("btn-create").addEventListener("click", () => {
         Swal.fire({
             title: 'Create room',
@@ -139,6 +158,145 @@
         })
     })
 
+    // Click on btn-join -> Join an existing room
+    document.getElementById("btn-join").addEventListener("click", async (e) => {
+        e.preventDefault();
+        const {value: formValues} = await Swal.fire({
+            title: 'Join room',
+            html:
+                '<form>' +
+                '<label id="room-string-label" class="form-label mt-2" for="room-string">Room invitation:</label>' +
+                '<input id="room-string" class="swal2-input" type="text" autocomplete="off" required />' +
+                '</form>',
+            confirmButtonText: 'Join',
+            focusConfirm: true,
+            showCancelButton: true,
+            preConfirm: () => {
+                return [
+                    document.getElementById('room-string').value,
+                ]
+            }
+        })
+
+        if (formValues) {
+            window.location.href = "/stream/" + document.getElementById('room-string').value;
+        }
+    })
+
+    // Click on btn-profile -> Open Profile
+    document.getElementById("btn-profile").addEventListener("click", () => {
+        document.getElementById("update-panel").style.display = "block";
+        document.getElementById("btn-save").style.display = "none";
+        document.getElementById("btn-cancel").style.display = "none";
+    })
+
+    // Click on btn-password -> Trigger password update modal
+    document.getElementById("btn-password").addEventListener("click", async (e) => {
+        e.preventDefault();
+        const {value: formValues} = await Swal.fire({
+            title: 'Change password',
+            html:
+                '<form>' +
+                '<label id="old-password-label" class="form-label mt-2" for="old-password">Old password:</label>' +
+                '<input id="old-password" class="swal2-input" type="password" autocomplete="off" required />' +
+                '<label id="new-password-label" class="form-label mt-2" for="new-password">New password:</label>' +
+                '<input id="new-password" class="swal2-input" type="password" autocomplete="off" required />' +
+                '<label id="confirm-password-label" class="form-label mt-2" for="confirm-password">Confirm new password:</label>' +
+                '<input id="confirm-password" class="swal2-input" type="password" autocomplete="off" required />' +
+                '</form>',
+            confirmButtonText: 'Confirm',
+            focusConfirm: true,
+            showCancelButton: true,
+            preConfirm: () => {
+                return [
+                    document.getElementById('old-password').value,
+                    document.getElementById('new-password').value,
+                    document.getElementById('confirm-password').value,
+                ]
+            }
+        })
+
+        if (formValues) {
+            let op = document.getElementById('old-password').value;
+            let np = document.getElementById('new-password').value;
+            let cp = document.getElementById('confirm-password').value;
+
+            window.location.href = "/user/update/{{.UserID}}?op=" + op + "&np=" + np + "&cp=" + cp;
+        }
+    })
+
+    // Click on btn-edit -> Enter edit mode
+    document.getElementById("btn-edit").addEventListener("click", () => {
+        document.getElementById("btn-edit").style.display = "none";
+        document.getElementById("btn-save").style.display = "inline";
+        document.getElementById("btn-cancel").style.display = "inline";
+        document.getElementById("username").disabled = false;
+        document.getElementById("email").disabled = false;
+        document.getElementById("creation-date").style.display = "none";
+        document.getElementById("creation-date-label").style.display = "none";
+        document.getElementById("btn-password").style.display = "none";
+    })
+
+    // Click on btn-cancel -> Exit edit mode and discard changes
+    document.getElementById("btn-cancel").addEventListener("click", () => {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success me-2',
+                cancelButton: 'btn btn-danger'
+            },
+            buttonsStyling: false
+        })
+
+        swalWithBootstrapButtons.fire({
+            title: 'Warning!',
+            text: "You are going to discard all changes.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById("username").value = "{{.Username}}";
+                document.getElementById("username").disabled = true;
+                document.getElementById("email").value = "{{.Email}}";
+                document.getElementById("email").disabled = true;
+                document.getElementById("creation-date").style.display = "block";
+                document.getElementById("creation-date-label").style.display = "block";
+                document.getElementById("btn-password").style.display = "block";
+                document.getElementById("btn-edit").style.display = "inline";
+                document.getElementById("btn-save").style.display = "none";
+                document.getElementById("btn-cancel").style.display = "none";
+            }
+        })
+    })
+
+    // Click on btn-save -> Exit edit mode and update user info
+    document.getElementById("btn-save").addEventListener("click", () => {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success me-2',
+                cancelButton: 'btn btn-danger'
+            },
+            buttonsStyling: false
+        })
+
+        swalWithBootstrapButtons.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this action.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let uname = document.getElementById("username").value;
+                let email = document.getElementById("email").value;
+                window.location.href = "/user/update/{{.UserID}}?uname=" + uname + "&email=" + email;
+            }
+        })
+    })
+
+    // Click on btn-logout -> Logout user
     document.getElementById("btn-logout").addEventListener("click", () => {
         Swal.fire({
             title: 'Log out',
