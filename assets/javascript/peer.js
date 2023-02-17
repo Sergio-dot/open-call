@@ -1,8 +1,9 @@
+// Copy stream link to share with viewers
 function copyToClipboard(text) {
     if (window.clipboardData && window.clipboardData.setData) {
         clipboardData.setData("Text", text);
         return Swal.fire({
-            position: 'top-end',
+            position: 'center',
             text: 'Copied to clipboard',
             showConfirmButton: false,
             timer: 1000,
@@ -17,7 +18,7 @@ function copyToClipboard(text) {
         try {
             document.execCommand("copy");
             return Swal.fire({
-                position: 'top-end',
+                position: 'center',
                 text: 'Copied to clipboard',
                 showConfirmButton: false,
                 timer: 1000,
@@ -32,11 +33,12 @@ function copyToClipboard(text) {
     }
 }
 
+// Handles WebRTC connection for peers
 function connect(stream) {
     document.getElementById('peers').style.display = 'block'
     document.getElementById('chat').style.display = 'flex'
     document.getElementById('noperm').style.display = 'none'
-    let pc = new RTCPeerConnection({
+    pc = new RTCPeerConnection({
         iceServers: [{
             'urls': 'stun:stun.l.google.com:19302',
         },
@@ -147,14 +149,11 @@ function connect(stream) {
     }
 }
 
+// Webcam & Microphone permissions + settings
 navigator.mediaDevices.getUserMedia({
     video: {
-        width: {
-            max: 1280
-        },
-        height: {
-            max: 720
-        },
+        width: {max: 1280},
+        height: {max: 720},
         aspectRatio: 4 / 3,
         frameRate: 30,
     },
@@ -168,3 +167,106 @@ navigator.mediaDevices.getUserMedia({
         document.getElementById('localVideo').srcObject = stream
         connect(stream)
     }).catch(err => console.log(err))
+
+let screenStream = null;
+let localStream = null;
+let audioTrack = null;
+let pc = null;
+
+// Toggle screen sharing on/off
+document.getElementById("share-screen-btn").addEventListener("click", async () => {
+    try {
+        const localVideo = document.getElementById("localVideo");
+        const displayMediaOptions = {
+            video: true,
+            audio: true,
+        };
+        if (!screenStream) {
+            screenStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
+            const videoTracks = screenStream.getVideoTracks();
+            console.log("videoTracks: " + videoTracks) // log
+            await pc.getSenders().find(sender => sender.track.kind === 'video').replaceTrack(videoTracks[0], videoTracks[0].clone());
+            localVideo.srcObject = screenStream;
+            document.getElementById("share-screen-btn").classList.remove("btn-danger");
+            document.getElementById("share-screen-btn").classList.add("btn-primary");
+
+            // Disable audio track from localStream
+            if (localStream) {
+                audioTrack = localStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    console.log("audioTrack: " + audioTrack)
+                    audioTrack.enabled = false;
+                }
+            }
+        } else {
+            const localVideoStream = await navigator.mediaDevices.getUserMedia({    video: {
+                    width: {max: 1280},
+                    height: {max: 720},
+                    aspectRatio: 4 / 3,
+                    frameRate: 30,
+                },
+                audio: {
+                    sampleSize: 16,
+                    channelCount: 2,
+                    echoCancellation: true
+                }});
+            const sender = pc.getSenders().find(sender => sender.track.kind === 'video');
+            const localVideoTrack = localVideoStream.getVideoTracks()[0];
+            console.log("Video track array: " + localVideoTrack); // log
+            const localAudioTrack = localVideoStream.getAudioTracks()[0];
+            console.log("Audio track array: " + localAudioTrack); // log
+            localStream = new MediaStream([localVideoTrack, localAudioTrack]);
+            await sender.replaceTrack(localVideoTrack);
+            localVideo.srcObject = localStream;
+            document.getElementById("share-screen-btn").classList.remove("btn-primary");
+            document.getElementById("share-screen-btn").classList.add("btn-danger");
+            screenStream.getTracks().forEach(track => track.stop());
+            screenStream = null;
+
+            if (localStream) {
+                audioTrack = localStream.getAudioTracks()[0];
+                audioTrack.enabled = true;
+            }
+        }
+    } catch (e) {
+        console.error("Error sharing screen: ", e);
+    }
+})
+
+// Toggle microphone on/off
+document.getElementById("mute-audio-btn").addEventListener("click", () => {
+    let localStream = document.getElementById("localVideo").srcObject;
+    if (localStream) {
+        let audioTrack = localStream.getAudioTracks()[0];
+        if (audioTrack) {
+            let enabled = audioTrack.enabled;
+            if (enabled) {
+                audioTrack.enabled = false;
+                document.getElementById("mute-audio-btn").innerHTML = '<i class="fa-solid fa-microphone-slash"></i>';
+                console.log("Microphone muted");
+            } else {
+                audioTrack.enabled = true;
+                document.getElementById("mute-audio-btn").innerHTML = '<i class="fa-solid fa-microphone"></i>';
+                console.log("Microphone activated");
+            }
+        }
+    }
+})
+
+// Toggle camera on/off
+document.getElementById("mute-video-btn").addEventListener("click", () => {
+    let localStream = document.getElementById("localVideo").srcObject;
+    if (localStream) {
+        let videoTrack = localStream.getVideoTracks()[0];
+        let enabled = videoTrack.enabled;
+        if (enabled) {
+            videoTrack.enabled = false;
+            document.getElementById("mute-video-btn").innerHTML = '<i class="fa fa-video-slash"></i>';
+            console.log("Camera off");
+        } else {
+            videoTrack.enabled = true;
+            document.getElementById("mute-video-btn").innerHTML = '<i class="fa fa-video"></i>';
+            console.log("Camera on");
+        }
+    }
+})
