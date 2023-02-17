@@ -3,13 +3,13 @@ function connectStream() {
     document.getElementById('chat').style.display = 'flex'
     let pc = new RTCPeerConnection({
         iceServers: [{
-            'urls': 'stun:turn.videochat:3478',
+            'urls': 'stun:stun.l.google.com:19302',
         },
             {
-                'urls': 'turn:turn.videochat:3478',
-                'username': 'akhil',
-                'credential': 'akhil',
-            }
+                'urls': 'turn:relay.metered.ca:80',
+                'username': '1b176fb3d756c3300bba247a',
+                'credential': 'CD/hGxq9WXgZ/UZu',
+            },
         ]
     })
 
@@ -19,10 +19,9 @@ function connectStream() {
         }
 
         col = document.createElement("div")
-        col.className = "column is-6 peer"
         let el = document.createElement(event.track.kind)
         el.srcObject = event.streams[0]
-        el.setAttribute("controls", "true")
+        el.className = "video-area"
         el.setAttribute("autoplay", "true")
         el.setAttribute("playsinline", "true")
         let playAttempt = setInterval(() => {
@@ -44,9 +43,7 @@ function connectStream() {
             el.play()
         }
 
-        event.streams[0].onremovetrack = ({
-                                              track
-                                          }) => {
+        event.streams[0].onremovetrack = ({track}) => {
             if (el.parentNode) {
                 el.parentNode.remove()
             }
