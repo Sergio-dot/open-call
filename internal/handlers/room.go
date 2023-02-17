@@ -16,10 +16,12 @@ import (
 	"github.com/pion/webrtc/v3"
 )
 
+// RoomCreate creates a new room and redirects the user to it
 func RoomCreate(c *fiber.Ctx) error {
 	return c.Redirect(fmt.Sprintf("/room/%s", guuid.New().String()))
 }
 
+// Room renders the HTML template for a room, retrieving the room UUID from the request URL
 func Room(c *fiber.Ctx) error {
 	uuid := c.Params("uuid")
 	if uuid == "" {
@@ -44,7 +46,7 @@ func Room(c *fiber.Ctx) error {
 		"RoomLink":            fmt.Sprintf("%s://%s/room/%s", c.Protocol(), c.Hostname(), uuid),
 		"ChatWebsocketAddr":   fmt.Sprintf("%s://%s/room/%s/chat/websocket", ws, c.Hostname(), uuid),
 		"ViewerWebsocketAddr": fmt.Sprintf("%s://%s/room/%s/viewer/websocket", ws, c.Hostname(), uuid),
-		"StreamLink":          fmt.Sprintf("%s://%s/stream/%s", c.Protocol(), c.Hostname(), suuid),
+		"StreamLink":          fmt.Sprintf("%s", suuid),
 		"Type":                "room",
 		"PageTitle":           "OpenCall - Streamer",
 		"UserID":              sess.Get("userID"),
@@ -55,6 +57,7 @@ func Room(c *fiber.Ctx) error {
 	}, "layouts/main")
 }
 
+// RoomWebsocket establishes a Websocket connection for a user to join a room
 func RoomWebsocket(c *websocket.Conn) {
 	uuid := c.Params("uuid")
 	if uuid == "" {
@@ -65,6 +68,7 @@ func RoomWebsocket(c *websocket.Conn) {
 	w.RoomConn(c, room.Peers)
 }
 
+// createOrGetRoom creates a new room or retrieves an existing one
 func createOrGetRoom(uuid string) (string, string, *w.Room) {
 	w.RoomsLock.Lock()
 	defer w.RoomsLock.Unlock()
@@ -95,6 +99,7 @@ func createOrGetRoom(uuid string) (string, string, *w.Room) {
 	return uuid, suuid, room
 }
 
+// RoomViewerWebsocket allows a user to join as a viewer in a room
 func RoomViewerWebsocket(c *websocket.Conn) {
 	uuid := c.Params("uuid")
 	if uuid == "" {
@@ -110,6 +115,7 @@ func RoomViewerWebsocket(c *websocket.Conn) {
 	w.RoomsLock.Unlock()
 }
 
+// roomViewerConn handles Websocket connections for viewers
 func roomViewerConn(c *websocket.Conn, p *w.Peers) {
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
@@ -127,6 +133,7 @@ func roomViewerConn(c *websocket.Conn, p *w.Peers) {
 	}
 }
 
+// websocketMessage represent a Websocket message
 type websocketMessage struct {
 	Event string `json:"event"`
 	Data  string `json:"data"`

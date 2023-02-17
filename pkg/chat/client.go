@@ -2,6 +2,8 @@ package chat
 
 import (
 	"bytes"
+	"fmt"
+	"github.com/gofiber/fiber/v2/middleware/session"
 	"log"
 	"time"
 
@@ -20,17 +22,21 @@ var (
 	space   = []byte{' '}
 )
 
+// upgrader is needed to upgrade connection -> HTTP to Websocket
 var upgrader = websocket.FastHTTPUpgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }
 
+// Client represents a Websocket client
 type Client struct {
-	Hub  *Hub
-	Conn *websocket.Conn
-	Send chan []byte
+	Hub      *Hub
+	Conn     *websocket.Conn
+	Send     chan []byte
+	Username string // TODO - add username field
 }
 
+// readPump reads messages from the WebSocket connection and broadcasts them to all connected clients
 func (c *Client) readPump() {
 	defer func() {
 		c.Hub.unregister <- c
@@ -49,10 +55,13 @@ func (c *Client) readPump() {
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
+		// prepend username to message
+		message = []byte(fmt.Sprintf("%s: %s", c.Username, message))
 		c.Hub.broadcast <- message
 	}
 }
 
+// writePump writes messages from the Send channel to the WebSocket connection, and also sends ping messages to the client to keep the connection alive
 func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
@@ -66,6 +75,7 @@ func (c *Client) writePump() {
 			if !ok {
 				return
 			}
+
 			w, err := c.Conn.NextWriter(websocket.TextMessage)
 			if err != nil {
 				return
@@ -91,11 +101,14 @@ func (c *Client) writePump() {
 	}
 }
 
-func PeerChatConn(conn *websocket.Conn, hub *Hub) {
+// PeerChatConn creates a new Client instance for the passed connection.
+// It then registers the client with the Hub and starts the read and write pumps in separate goroutines
+func PeerChatConn(conn *websocket.Conn, hub *Hub, sess *session.Session) {
 	client := &Client{
-		Hub:  hub,
-		Conn: conn,
-		Send: make(chan []byte, 256),
+		Hub:      hub,
+		Conn:     conn,
+		Send:     make(chan []byte, 256),
+		Username: sess.Get("username").(string),
 	}
 
 	client.Hub.register <- client
