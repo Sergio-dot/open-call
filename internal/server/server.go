@@ -83,6 +83,7 @@ func Run() error {
 	group := app.Group("/", auth.Authentication)
 	group.Get("/logout", handlers.Logout)
 	group.Get("/dashboard", handlers.Dashboard)
+	group.Get("/user/update/:id", handlers.UpdateUser)
 	group.Get("/room/create", handlers.RoomCreate)
 	group.Get("/room/:uuid", handlers.Room)
 	group.Get("/room/:uuid/websocket", websocket.New(handlers.RoomWebsocket, websocket.Config{
