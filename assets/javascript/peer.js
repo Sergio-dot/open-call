@@ -243,10 +243,14 @@ document.getElementById("mute-audio-btn").addEventListener("click", () => {
             if (enabled) {
                 audioTrack.enabled = false;
                 document.getElementById("mute-audio-btn").innerHTML = '<i class="fa-solid fa-microphone-slash"></i>';
+                document.getElementById("mute-audio-btn").classList.remove("btn-primary");
+                document.getElementById("mute-audio-btn").classList.add("btn-danger");
                 console.log("Microphone muted");
             } else {
                 audioTrack.enabled = true;
                 document.getElementById("mute-audio-btn").innerHTML = '<i class="fa-solid fa-microphone"></i>';
+                document.getElementById("mute-audio-btn").classList.remove("btn-danger");
+                document.getElementById("mute-audio-btn").classList.add("btn-primary");
                 console.log("Microphone activated");
             }
         }
@@ -262,10 +266,14 @@ document.getElementById("mute-video-btn").addEventListener("click", () => {
         if (enabled) {
             videoTrack.enabled = false;
             document.getElementById("mute-video-btn").innerHTML = '<i class="fa fa-video-slash"></i>';
+            document.getElementById("mute-video-btn").classList.remove("btn-primary");
+            document.getElementById("mute-video-btn").classList.add("btn-danger");
             console.log("Camera off");
         } else {
             videoTrack.enabled = true;
             document.getElementById("mute-video-btn").innerHTML = '<i class="fa fa-video"></i>';
+            document.getElementById("mute-video-btn").classList.remove("btn-danger");
+            document.getElementById("mute-video-btn").classList.add("btn-primary");
             console.log("Camera on");
         }
     }
