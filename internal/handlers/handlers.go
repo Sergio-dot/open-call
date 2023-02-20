@@ -1,18 +1,21 @@
 package handlers
 
 import (
-	"github.com/Sergio-dot/open-call/internal/auth"
+	_ "context"
+	context2 "context"
+	"encoding/json"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
 
-	"log"
-
+	"github.com/Sergio-dot/open-call/internal/auth"
 	"github.com/Sergio-dot/open-call/internal/models"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
+	"github.com/huandu/facebook"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
@@ -199,14 +202,14 @@ func SignUp(ctx *fiber.Ctx) error {
 	return ctx.Redirect("/")
 }
 
-// GoogleLogin handles logging the user in through his google account
+// GoogleLogin handles logging the user in through his Google account
 func GoogleLogin(ctx *fiber.Ctx) error {
 	path := auth.ConfigGoogle()
 	url := path.AuthCodeURL("state")
 	return ctx.Redirect(url)
 }
 
-// GoogleCallback handles google's response
+// GoogleCallback handles Google response
 func GoogleCallback(ctx *fiber.Ctx) error {
 	// get context session
 	sess, err := Store.Get(ctx)
@@ -234,6 +237,136 @@ func GoogleCallback(ctx *fiber.Ctx) error {
 		user = models.User{
 			Email:    email,
 			Username: username,
+		}
+		DB.Create(&user)
+	}
+
+	// log in the user
+	sess.Set("userID", user.ID)
+	sess.Set("email", user.Email)
+	sess.Set("username", user.Username)
+	sess.Set("createdAt", user.CreatedAt)
+	sess.Set("updatedAt", user.UpdatedAt)
+	sess.Set("success-message", "Logged in")
+	sess.Save()
+
+	return ctx.Redirect("/dashboard")
+}
+
+// FacebookLogin handles logging the user in through his Facebook account
+func FacebookLogin(ctx *fiber.Ctx) error {
+	path := auth.ConfigFacebook()
+	url := path.AuthCodeURL("state")
+	return ctx.Redirect(url)
+}
+
+// FacebookCallback handles Facebook response
+func FacebookCallback(ctx *fiber.Ctx) error {
+	// get context session
+	sess, err := Store.Get(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// exchanging the authorization code obtained from the Facebook OAuth2 flow for an access token
+	token, err := auth.ConfigFacebook().Exchange(ctx.Context(), ctx.FormValue("code"))
+	if err != nil {
+		sess.Set("error-message", "Something went wrong")
+		sess.Save()
+		return ctx.Redirect("/")
+	}
+
+	// use the Facebook Graph API to retrieve the user's profile information
+	resp, err := facebook.Get("/me", facebook.Params{
+		"access_token": token.AccessToken,
+		"fields":       "id,name,email",
+	})
+	if err != nil {
+		sess.Set("error-message", "Something went wrong")
+		sess.Save()
+		return ctx.Redirect("/")
+	}
+
+	// extract the user's profile information from the response
+	name, _ := resp.Get("name").(string)
+	email, _ := resp.Get("email").(string)
+
+	// check if user is already in database
+	var user models.User
+	DB.Where("email = ?", email).First(&user)
+	if user.ID == 0 {
+		// create new user
+		user = models.User{
+			Email:    email,
+			Username: name,
+		}
+		DB.Create(&user)
+	}
+
+	// log in the user
+	sess.Set("userID", user.ID)
+	sess.Set("email", user.Email)
+	sess.Set("username", user.Username)
+	sess.Set("createdAt", user.CreatedAt)
+	sess.Set("updatedAt", user.UpdatedAt)
+	sess.Set("success-message", "Logged in")
+	sess.Save()
+
+	return ctx.Redirect("/dashboard")
+}
+
+// GithubLogin handles logging the user in through his GitHub account
+func GithubLogin(ctx *fiber.Ctx) error {
+	url := auth.ConfigGithub().AuthCodeURL("state")
+	return ctx.Redirect(url)
+}
+
+// GitHubCallback handles GitHub response
+func GitHubCallback(ctx *fiber.Ctx) error {
+	// get context session
+	sess, err := Store.Get(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// exchanging the authorization code obtained from the GitHub OAuth2 flow for an access token
+	token, err := auth.ConfigGithub().Exchange(ctx.Context(), ctx.FormValue("code"))
+	if err != nil {
+		sess.Set("error-message", "Something went wrong. Try again")
+		sess.Save()
+		return ctx.Redirect("/")
+	}
+
+	context := context2.Background()
+
+	// use the GitHub API to retrieve the user's profile information
+	client := auth.ConfigGithub().Client(context, token)
+	resp, err := client.Get("https://api.github.com/user")
+	if err != nil {
+		sess.Set("error-message", "Something went wrong. Try again")
+		sess.Save()
+		return ctx.Redirect("/")
+	}
+	defer resp.Body.Close()
+
+	// extract the user's profile information from the response
+	var userInfo map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
+		sess.Set("error-message", "Something went wrong. Try again")
+		sess.Save()
+		return ctx.Redirect("/")
+	}
+	name := userInfo["name"].(string)
+	email := userInfo["email"].(string)
+
+	// check if user is already in database
+	var user models.User
+	DB.Where("email = ?", email).First(&user)
+	if user.ID == 0 {
+		// create new user
+		user = models.User{
+			Email:    email,
+			Username: name,
 		}
 		DB.Create(&user)
 	}
