@@ -94,7 +94,7 @@
     </div>
     <!-- Sidebar -->
 
-    <!-- Update panel TODO - update password -->
+    <!-- Update panel -->
     <div id='update-panel' class='position-relative text-white p-5 ms-4 mt-3 mb-3 rounded-3'>
         <h1 class='text-dark'>{{.Username}}'s account information:</h1>
         <form id='updateForm'>
@@ -114,17 +114,27 @@
                 <input id='creation-date' type='text' class='form-control' value='{{.CreatedAt}}'
                        disabled>
             </div>
+
+            {{if eq .Type 0}}
             <div class='mb-3 mt-5'>
                 <button id='btn-password' class='btn btn-warning'>
                     Change Password
                 </button>
             </div>
+            {{end}}
         </form>
         <div id='btn-group' class='position-absolute bottom-0 end-0 mb-4 me-4'>
-            <button id='btn-edit' class='btn btn-outline-primary'>
-                <i class='fa-solid fa-pen-to-square me-2'></i>
-                Edit
-            </button>
+            {{if ne .Type 1}}
+                <button id='btn-edit' class='btn btn-outline-primary' disabled>
+                    <i class='fa-solid fa-pen-to-square me-2'></i>
+                    Edit
+                </button>
+            {{else}}
+                <button id='btn-edit' class='btn btn-outline-primary'>
+                    <i class='fa-solid fa-pen-to-square me-2'></i>
+                    Edit
+                </button>
+            {{end}}
             <button id='btn-save' class='btn btn-outline-success'>
                 <i class='fa-solid fa-floppy-disk me-2'></i>
                 Save
