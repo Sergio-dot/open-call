@@ -4,6 +4,45 @@ const availableCmds = ["help", "howto", "about"]
 let msgCount = 0;
 let slideOpen = false;
 
+function formatMessage(message) {
+    const sections = message.split(/```([\s\S]*?)```/);
+
+    return sections
+        .map((section, index) => {
+            if (index % 2 === 1) {
+                // Format code section
+                const code = section.trim();
+                const highlightedCode = hljs.highlightAuto(code, ["a11y-dark"]).value;
+                return `<pre><code class="hljs">${highlightedCode}</code></pre>`;
+            } else {
+                // Format regular message section
+                return formatText(section);
+            }
+        })
+        .join("");
+}
+
+function formatText(text) {
+    // Escape HTML entities to prevent XSS attacks
+    const escapedText = escapeHTML(text.trim());
+
+    // Wrap the text in a <p> tag
+    return `<p>${escapedText}</p>`;
+}
+
+function escapeHTML(html) {
+    const escapeChars = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+    };
+
+    return html.replace(/[&<>"']/g, (char) => escapeChars[char]);
+}
+
+
 function slideToggle() {
     var chat = document.getElementById('chat-content');
     if (slideOpen) {
@@ -92,7 +131,7 @@ function connectChat() {
     }
 
     chatWs.onmessage = function (evt) {
-        var messages = evt.data.split('\n');
+        const messages = evt.data.split('\n');
         if (slideOpen === false) {
             msgCount += 1;
             document.getElementById('chat-alert').style.display = 'flex';
@@ -102,7 +141,7 @@ function connectChat() {
         for (let i = 0; i < messages.length; i++) {
             const item = document.createElement("div");
 
-            item.innerText = currentTime() + " - " + messages[i];
+            item.innerHTML = formatMessage(messages[i]);
             appendLog(item);
         }
     }
