@@ -8,6 +8,7 @@ require (
 	github.com/gofiber/template v1.7.3
 	github.com/gofiber/websocket/v2 v2.1.3
 	github.com/google/uuid v1.3.0
+	github.com/huandu/facebook v2.3.1+incompatible
 	github.com/jinzhu/gorm v1.9.16
 	github.com/joho/godotenv v1.5.1
 	github.com/pion/rtcp v1.2.10
