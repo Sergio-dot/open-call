@@ -184,7 +184,7 @@ document.getElementById("share-screen-btn").addEventListener("click", async () =
         if (!screenStream) {
             screenStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
             const videoTracks = screenStream.getVideoTracks();
-            console.log("videoTracks: " + videoTracks) // log
+            console.log("videoTracks: " + videoTracks);
             await pc.getSenders().find(sender => sender.track.kind === 'video').replaceTrack(videoTracks[0], videoTracks[0].clone());
             localVideo.srcObject = screenStream;
             document.getElementById("share-screen-btn").classList.remove("btn-danger");
@@ -193,28 +193,14 @@ document.getElementById("share-screen-btn").addEventListener("click", async () =
             // Disable audio track from localStream
             if (localStream) {
                 audioTrack = localStream.getAudioTracks()[0];
-                if (audioTrack) {
-                    console.log("audioTrack: " + audioTrack)
-                    audioTrack.enabled = false;
-                }
+                console.log("audioTrack: " + audioTrack);
+                audioTrack.enabled = false;
             }
         } else {
-            const localVideoStream = await navigator.mediaDevices.getUserMedia({    video: {
-                    width: {max: 1280},
-                    height: {max: 720},
-                    aspectRatio: 4 / 3,
-                    frameRate: 30,
-                },
-                audio: {
-                    sampleSize: 16,
-                    channelCount: 2,
-                    echoCancellation: true
-                }});
+            const localVideoStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
             const sender = pc.getSenders().find(sender => sender.track.kind === 'video');
             const localVideoTrack = localVideoStream.getVideoTracks()[0];
-            console.log("Video track array: " + localVideoTrack); // log
             const localAudioTrack = localVideoStream.getAudioTracks()[0];
-            console.log("Audio track array: " + localAudioTrack); // log
             localStream = new MediaStream([localVideoTrack, localAudioTrack]);
             await sender.replaceTrack(localVideoTrack);
             localVideo.srcObject = localStream;
@@ -223,10 +209,7 @@ document.getElementById("share-screen-btn").addEventListener("click", async () =
             screenStream.getTracks().forEach(track => track.stop());
             screenStream = null;
 
-            if (localStream) {
-                audioTrack = localStream.getAudioTracks()[0];
-                audioTrack.enabled = true;
-            }
+            audioTrack = localAudioTrack;
         }
     } catch (e) {
         console.error("Error sharing screen: ", e);
@@ -245,13 +228,11 @@ document.getElementById("mute-audio-btn").addEventListener("click", () => {
                 document.getElementById("mute-audio-btn").innerHTML = '<i class="fa-solid fa-microphone-slash"></i>';
                 document.getElementById("mute-audio-btn").classList.remove("btn-primary");
                 document.getElementById("mute-audio-btn").classList.add("btn-danger");
-                console.log("Microphone muted");
             } else {
                 audioTrack.enabled = true;
                 document.getElementById("mute-audio-btn").innerHTML = '<i class="fa-solid fa-microphone"></i>';
                 document.getElementById("mute-audio-btn").classList.remove("btn-danger");
                 document.getElementById("mute-audio-btn").classList.add("btn-primary");
-                console.log("Microphone activated");
             }
         }
     }
@@ -268,13 +249,11 @@ document.getElementById("mute-video-btn").addEventListener("click", () => {
             document.getElementById("mute-video-btn").innerHTML = '<i class="fa fa-video-slash"></i>';
             document.getElementById("mute-video-btn").classList.remove("btn-primary");
             document.getElementById("mute-video-btn").classList.add("btn-danger");
-            console.log("Camera off");
         } else {
             videoTrack.enabled = true;
             document.getElementById("mute-video-btn").innerHTML = '<i class="fa fa-video"></i>';
             document.getElementById("mute-video-btn").classList.remove("btn-danger");
             document.getElementById("mute-video-btn").classList.add("btn-primary");
-            console.log("Camera on");
         }
     }
 })
