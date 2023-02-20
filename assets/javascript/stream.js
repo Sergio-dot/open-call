@@ -1,6 +1,6 @@
 function connectStream() {
-    document.getElementById('peers').style.display = 'block'
-    document.getElementById('chat').style.display = 'flex'
+    document.getElementById('peers').style.display = 'block';
+    document.getElementById('chat').style.display = 'flex';
     let pc = new RTCPeerConnection({
         iceServers: [{
             'urls': 'stun:stun.l.google.com:19302',
@@ -18,12 +18,17 @@ function connectStream() {
             return
         }
 
-        col = document.createElement("div")
-        let el = document.createElement(event.track.kind)
-        el.srcObject = event.streams[0]
-        el.className = "video-area"
-        el.setAttribute("autoplay", "true")
-        el.setAttribute("playsinline", "true")
+        col = document.createElement("div");
+        let el = document.createElement(event.track.kind);
+        el.srcObject = event.streams[0];
+        el.className = "video-area";
+        el.setAttribute("controls", "true");
+        el.setAttribute("autoplay", "true");
+        el.setAttribute("playsinline", "true");
+
+        // remove the start and stop buttons
+        el.removeAttribute("controlsList");
+
         let playAttempt = setInterval(() => {
             el.play()
                 .then(() => {
@@ -35,20 +40,20 @@ function connectStream() {
         }, 3000);
 
         col.appendChild(el)
-        document.getElementById('noonestream').style.display = 'none'
-        document.getElementById('nocon').style.display = 'none'
-        document.getElementById('videos').appendChild(col)
+        document.getElementById('noonestream').style.display = 'none';
+        document.getElementById('nocon').style.display = 'none';
+        document.getElementById('videos').appendChild(col);
 
         event.track.onmute = function (event) {
-            el.play()
+            el.play();
         }
 
         event.streams[0].onremovetrack = ({track}) => {
             if (el.parentNode) {
-                el.parentNode.remove()
+                el.parentNode.remove();
             }
             if (document.getElementById('videos').childElementCount <= 2) {
-                document.getElementById('noonestream').style.display = 'flex'
+                document.getElementById('noonestream').style.display = 'flex';
             }
         }
     }
@@ -70,33 +75,33 @@ function connectStream() {
     })
 
     ws.onclose = function (evt) {
-        console.log("websocket has closed")
+        console.log("websocket has closed");
         pc.close();
         pc = null;
-        pr = document.getElementById('videos')
+        pr = document.getElementById('videos');
         while (pr.childElementCount > 2) {
-            pr.lastChild.remove()
+            pr.lastChild.remove();
         }
-        document.getElementById('noonestream').style.display = 'none'
-        document.getElementById('nocon').style.display = 'flex'
+        document.getElementById('noonestream').style.display = 'none';
+        document.getElementById('nocon').style.display = 'flex';
         setTimeout(function () {
             connectStream();
         }, 1000);
     }
 
     ws.onmessage = function (evt) {
-        let msg = JSON.parse(evt.data)
+        let msg = JSON.parse(evt.data);
         if (!msg) {
             return console.log('failed to parse msg')
         }
 
         switch (msg.event) {
             case 'offer':
-                let offer = JSON.parse(msg.data)
+                let offer = JSON.parse(msg.data);
                 if (!offer) {
-                    return console.log('failed to parse answer')
+                    return console.log('failed to parse answer');
                 }
-                pc.setRemoteDescription(offer)
+                pc.setRemoteDescription(offer);
                 pc.createAnswer().then(answer => {
                     pc.setLocalDescription(answer)
                     ws.send(JSON.stringify({
@@ -107,17 +112,17 @@ function connectStream() {
                 return
 
             case 'candidate':
-                let candidate = JSON.parse(msg.data)
+                let candidate = JSON.parse(msg.data);
                 if (!candidate) {
-                    return console.log('failed to parse candidate')
+                    return console.log('failed to parse candidate');
                 }
 
-                pc.addIceCandidate(candidate)
+                pc.addIceCandidate(candidate);
         }
     }
 
     ws.onerror = function (evt) {
-        console.log("error: " + evt.data)
+        console.log("error: " + evt.data);
     }
 }
 

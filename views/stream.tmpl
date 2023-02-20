@@ -35,6 +35,19 @@
         box-shadow: 20px 20px 60px #064180,
         -20px -20px 60px #0859ad;
     }
+
+    /* Hide the start and stop buttons */
+    .video-area::-webkit-media-controls-start-playback-button,
+    .video-area::-webkit-media-controls-end-playback-button {
+        display: none !important;
+    }
+
+    /* Hide the time range input element */
+    .video-area::-webkit-media-controls-time-remaining-display,
+    .video-area::-webkit-media-controls-timeline,
+    .video-area::-webkit-media-controls-current-time-display {
+        display: none !important;
+    }
 </style>
 <!-- CSS -->
 
@@ -42,7 +55,7 @@
 <div class="container-fluid row">
     <div class="container-fluid col-6">
 
-        <div class="viewer d-flex align-items-center mt-3 mb-3 p-2 rounded-2 text-white">
+        <div class="viewer d-flex align-items-center mt-3 mb-3 p-2 rounded-2 text-white user-select-none">
             <i class="fa fa-users p-2"></i>
             <span class="border-count"></span>
             <p id="viewer-count" class="ms-2 me-1 mt-3">0</p>
