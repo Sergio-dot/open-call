@@ -33,6 +33,11 @@
         color: white;
     }
 
+    #githubLogin:hover {
+        background: #2D333B;
+        color: white;
+    }
+
     .input-group-text {
         width: 44px;
     }
@@ -112,6 +117,11 @@
             <!-- Social logins -->
             <div class="text-center mt-4">
                 <h3 class="mb-3">or use socials:</h3>
+
+                <button type="button" id="githubLogin" class="btn btn-link btn-floating mx-1 rounded-circle">
+                    <i class="fab fa-github"></i>
+                </button>
+
                 <button type="button" id="facebookLogin" class="btn btn-link btn-floating mx-1 rounded-circle">
                     <i class="fab fa-facebook-f"
                        style="width: 14px; height: 10px; line-height: 10px; text-align: center;"></i>
@@ -120,6 +130,7 @@
                 <button type="button" id="googleLogin" class="btn btn-link btn-floating mx-1 rounded-circle">
                     <i class="fab fa-google"></i>
                 </button>
+
             </div>
         </form>
 
@@ -257,4 +268,14 @@
     document.getElementById("googleLogin").addEventListener("click", () => {
         window.location.replace("/login/google");
     });
+
+    // Login with Facebook
+    document.getElementById("facebookLogin").addEventListener("click", () => {
+        window.location.replace("/login/facebook");
+    })
+
+    // Login with GitHub
+    document.getElementById("githubLogin").addEventListener("click", () => {
+        window.location.replace("/login/github")
+    })
 </script>

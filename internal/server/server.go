@@ -78,6 +78,10 @@ func Run() error {
 	app.Post("/signup", handlers.SignUp)
 	app.Get("/login/google", handlers.GoogleLogin)
 	app.Get("/login/google/callback", handlers.GoogleCallback)
+	app.Get("/login/facebook", handlers.FacebookLogin)
+	app.Get("/login/facebook/callback", handlers.FacebookCallback)
+	app.Get("/login/github", handlers.GithubLogin)
+	app.Get("/login/github/callback", handlers.GitHubCallback)
 
 	// protected routes
 	group := app.Group("/", auth.Authentication)
