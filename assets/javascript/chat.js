@@ -12,7 +12,7 @@ function formatMessage(message) {
             if (index % 2 === 1) {
                 // Format code section
                 const code = section.trim();
-                const highlightedCode = hljs.highlightAuto(code, ["a11y-dark"]).value;
+                const highlightedCode = hljs.highlightAuto(code).value;
                 return `<pre><code class="hljs">${highlightedCode}</code></pre>`;
             } else {
                 // Format regular message section
