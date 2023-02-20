@@ -31,6 +31,12 @@ func Stream(c *fiber.Ctx) error {
 
 	w.RoomsLock.Lock()
 	if _, ok := w.Streams[suuid]; ok {
+		sess.Set("success-message", "Joined room")
+		successMessage, _ := sess.Get("success-message").(string)
+		// remove message from the session
+		sess.Delete("success-message")
+		sess.Delete("error-message")
+		sess.Save()
 		w.RoomsLock.Unlock()
 		return c.Render("stream", fiber.Map{
 			"StreamWebsocketAddr": fmt.Sprintf("%s://%s/stream/%s/websocket", ws, c.Hostname(), suuid),
@@ -43,14 +49,16 @@ func Stream(c *fiber.Ctx) error {
 			"Username":            sess.Get("username"),
 			"CreatedAt":           sess.Get("createdAt"),
 			"UpdatedAt":           sess.Get("updatedAt"),
+			"ToastSuccess":        successMessage,
 		}, "layouts/main")
 	}
+
+	sess.Set("error-message", "Room does not exist")
+	sess.Save()
+
 	w.RoomsLock.Unlock()
 
-	return c.Render("stream", fiber.Map{
-		"NoStream": "true",
-		"Leave":    "true",
-	}, "layouts/main")
+	return c.Redirect("/dashboard")
 }
 
 func StreamWebsocket(c *websocket.Conn) {
