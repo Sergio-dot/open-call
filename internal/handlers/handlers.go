@@ -79,6 +79,7 @@ func Dashboard(ctx *fiber.Ctx) error {
 		"UserID":       sess.Get("userID"),
 		"Email":        sess.Get("email"),
 		"Username":     sess.Get("username"),
+		"Type":         sess.Get("type"),
 		"CreatedAt":    sess.Get("createdAt").(time.Time).Format("02-01-2006"),
 		"UpdatedAt":    sess.Get("updatedAt").(time.Time).Format("02-01-2006"),
 		"ToastSuccess": successMessage,
@@ -126,6 +127,7 @@ func Login(ctx *fiber.Ctx) error {
 	sess.Set("userID", user.ID)
 	sess.Set("email", user.Email)
 	sess.Set("username", user.Username)
+	sess.Set("type", user.Type)
 	sess.Set("createdAt", user.CreatedAt)
 	sess.Set("updatedAt", user.UpdatedAt)
 	sess.Set("success-message", "Logged in")
@@ -193,6 +195,7 @@ func SignUp(ctx *fiber.Ctx) error {
 		Email:    email,
 		Username: username,
 		Password: string(hashedPassword),
+		Type:     1,
 	}
 	DB.Create(user)
 
@@ -237,6 +240,7 @@ func GoogleCallback(ctx *fiber.Ctx) error {
 		user = models.User{
 			Email:    email,
 			Username: username,
+			Type:     0,
 		}
 		DB.Create(&user)
 	}
@@ -299,6 +303,7 @@ func FacebookCallback(ctx *fiber.Ctx) error {
 		user = models.User{
 			Email:    email,
 			Username: name,
+			Type:     0,
 		}
 		DB.Create(&user)
 	}
@@ -367,6 +372,7 @@ func GitHubCallback(ctx *fiber.Ctx) error {
 		user = models.User{
 			Email:    email,
 			Username: name,
+			Type:     0,
 		}
 		DB.Create(&user)
 	}
@@ -387,6 +393,8 @@ func GitHubCallback(ctx *fiber.Ctx) error {
 func UpdateUser(ctx *fiber.Ctx) error {
 	passwordChange := true
 
+	// TODO - if user is registered through socials, can't change email/password
+
 	// get context session
 	sess, err := Store.Get(ctx)
 	if err != nil {
@@ -403,6 +411,13 @@ func UpdateUser(ctx *fiber.Ctx) error {
 	var user models.User
 	if err = DB.First(&user, id).Error; err != nil {
 		return ctx.Status(fiber.StatusNotFound).SendString("User not found")
+	}
+
+	// check if account is linked to social
+	if user.Type != 1 {
+		sess.Set("error-message", "Social accounts can't be updated")
+		sess.Save()
+		return ctx.Redirect("/dashboard")
 	}
 
 	// get username to update
