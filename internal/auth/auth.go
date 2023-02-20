@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/Sergio-dot/open-call/internal/config"
 	"github.com/Sergio-dot/open-call/internal/models"
+	"golang.org/x/oauth2/facebook"
+	"golang.org/x/oauth2/github"
 	"io"
 	"log"
 	"net/http"
@@ -14,14 +16,40 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
-// ConfigGoogle to set oauth config
+// ConfigGoogle to set oauth config for Google login
 func ConfigGoogle() *oauth2.Config {
 	conf := &oauth2.Config{
-		ClientID:     config.Config("Client"),
-		ClientSecret: config.Config("Secret"),
-		RedirectURL:  config.Config("redirect_url"),
+		ClientID:     config.Config("GOOGLE_CLIENT_ID"),
+		ClientSecret: config.Config("GOOGLE_SECRET_KEY"),
+		RedirectURL:  config.Config("GOOGLE_REDIRECT_URL"),
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
 		Endpoint:     google.Endpoint,
+	}
+
+	return conf
+}
+
+// ConfigFacebook to set oauth config for Facebook login
+func ConfigFacebook() *oauth2.Config {
+	conf := &oauth2.Config{
+		ClientID:     config.Config("FACEBOOK_APP_ID"),
+		ClientSecret: config.Config("FACEBOOK_SECRET_KEY"),
+		RedirectURL:  config.Config("FACEBOOK_REDIRECT_URL"),
+		Scopes:       []string{"email"},
+		Endpoint:     facebook.Endpoint,
+	}
+
+	return conf
+}
+
+// ConfigGithub to set oauth config for GitHub login
+func ConfigGithub() *oauth2.Config {
+	conf := &oauth2.Config{
+		ClientID:     config.Config("GITHUB_CLIENT_ID"),
+		ClientSecret: config.Config("GITHUB_SECRET_KEY"),
+		RedirectURL:  config.Config("GITHUB_REDIRECT_URL"),
+		Scopes:       []string{"user:email"},
+		Endpoint:     github.Endpoint,
 	}
 
 	return conf
