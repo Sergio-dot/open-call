@@ -105,12 +105,18 @@ document.getElementById("chat-form").onsubmit = function () {
             Swal.fire(
                 'ChatBot says:',
                 'Available commands are: ' +
-                availableCmds[0] + ' ' +
-                availableCmds[1] + ' ' +
+                availableCmds[0] + ', ' +
+                availableCmds[1] + ', ' +
                 availableCmds[2],
                 'question'
             )
-        } // TODO - handle non existent commands
+        } else {
+            Swal.fire(
+                'ChatBot says:',
+                'Unknown command. Please use !help to see available commands.',
+                'error'
+            )
+        }
     } else {
         chatWs.send(msg.value);
     }
