@@ -393,8 +393,6 @@ func GitHubCallback(ctx *fiber.Ctx) error {
 func UpdateUser(ctx *fiber.Ctx) error {
 	passwordChange := true
 
-	// TODO - if user is registered through socials, can't change email/password
-
 	// get context session
 	sess, err := Store.Get(ctx)
 	if err != nil {

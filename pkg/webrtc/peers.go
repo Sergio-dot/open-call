@@ -22,7 +22,6 @@ var (
 var (
 	turnConfig = webrtc.Configuration{
 		ICETransportPolicy: webrtc.ICETransportPolicyRelay,
-		// TODO - need working stun/turn servers
 		ICEServers: []webrtc.ICEServer{
 			{
 

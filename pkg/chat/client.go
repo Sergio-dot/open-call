@@ -33,7 +33,7 @@ type Client struct {
 	Hub      *Hub
 	Conn     *websocket.Conn
 	Send     chan []byte
-	Username string // TODO - add username field
+	Username string
 }
 
 // readPump reads messages from the WebSocket connection and broadcasts them to all connected clients
