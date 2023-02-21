@@ -9,10 +9,14 @@ import (
 )
 
 func main() {
-	// load .env file
+	// load .env files
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file: ", err)
+	}
+	err = godotenv.Load(".env.db")
+	if err != nil {
+		log.Fatal("Error loading .env.db file: ", err)
 	}
 
 	// start server

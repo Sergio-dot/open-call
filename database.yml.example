@@ -1,6 +1,6 @@
 development:
   dialect: postgres
-  database: open-call
+  database:
   user:
   password:
   host: 127.0.0.1

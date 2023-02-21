@@ -42,8 +42,14 @@ func Run() error {
 	// initialize a logger
 	dbLogger := log.New(os.Stdout, "\r\n", 0)
 
+	// get database parameters
+	dbUser := os.Getenv("DB_USER")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+	sslMode := os.Getenv("SSL_MODE")
+
 	// connect to PostgreSQL database
-	db, err := gorm.Open("postgres", "user=postgres password=root dbname=opencall sslmode=disable")
+	db, err := gorm.Open("postgres", "user="+dbUser+" password="+dbPassword+" dbname="+dbName+" sslmode="+sslMode)
 	if err != nil {
 		return err
 	}
