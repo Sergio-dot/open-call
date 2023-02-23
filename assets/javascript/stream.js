@@ -22,7 +22,6 @@ function connectStream() {
         let el = document.createElement(event.track.kind);
         el.srcObject = event.streams[0];
         el.className = "video-area";
-        el.setAttribute("controls", "true");
         el.setAttribute("autoplay", "true");
         el.setAttribute("playsinline", "true");
 
